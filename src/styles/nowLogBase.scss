@@ -1,0 +1,63 @@
+
+.newLogBase {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	background: #fcfcfc
+}
+.newLogBase .contBox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	margin: auto;
+	width: 1000px;
+	height: 600px;
+	background: #fff;
+	box-shadow: 0 2px 38px RGBA(241,101,145,.05);
+	display: -ms-flexbox;
+	display: flex
+}
+.newLogBase .contBox .leftBox {
+	-ms-flex: 1;
+	flex: 1;
+	padding-left: 35px;
+	padding-top: 40px
+}
+.newLogBase .contBox .leftBox>h2 {
+	font-size: 28px;
+	line-height: 40px;
+	color: #333;
+	font-weight: 700;
+	margin-bottom: 10px;
+	cursor: pointer
+}
+.newLogBase .contBox .leftBox>h3 {
+	font-size: 16px;
+	line-height: 20px;
+	color: #333;
+	margin-bottom: 20px
+}
+.newLogBase .contBox .leftBox .line {
+	display: -ms-flexbox;
+	display: flex;
+	margin-bottom: 20px
+}
+.newLogBase .contBox .leftBox .line span {
+	width: 56px;
+	height: 3px;
+	border-radius: 4px;
+	background: #ddd;
+	margin-right: 6px;
+	cursor: pointer
+}
+.newLogBase .contBox .leftBox .line .active {
+	background: #d0507d
+}
+.newLogBase .contBox .rightImg {
+	width: 444px
+}
+.newLogBase .contBox .rightImg img {
+	width: 100%
+}
