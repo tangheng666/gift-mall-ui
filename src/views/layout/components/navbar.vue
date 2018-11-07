@@ -11,42 +11,49 @@
           <em class="cursor textB" @click="login()">登录</em> <span>|</span> <em class="cursor textB" @click="register()">免费注册</em>
         </div>
         <div v-else class="right loged">
-          <Icon type="md-notifications-outline" size="16" class="cursor"/>
-          <span>账户余额：<span>{{ balance }}元</span>
+          <Icon type="md-notifications-outline" size="16" class="cursor" />
+          <span>账户余额：<span>{{ wealth }}元</span>
           </span> <em class="button-tip rechargeBtn">充值</em>
-          <strong class="cursor userInfo" @click="showInfo()">Hi~{{ name }}
-          <Icon :type="show?'ios-arrow-up':'ios-arrow-down'" size="20"/></strong>
-          <transition name="bounce">
-            <ul
-              v-show="show"
-              class="infoBox"
-              style="overflow: hidden; padding-top: 0px; padding-bottom: 0px;"
-              data-old-padding-top="0px"
-              data-old-padding-bottom="0px"
-              data-old-overflow="hidden">
-              <li class="head" ><img src="http://106.14.154.124:8099/images/head.jpg" alt="用户头像"></li>
-              <li class="userInfo">Hi~{{ name }}</li>
-              <li class="level"><Icon type="ios-star" color="#FFB10F"/>
-                <span>注册用户</span>
-                <span>首重3.5元起</span>
-              </li>
-              <li class="balance"><span>账户余额</span> <strong>￥{{ balance }}</strong></li>
-              <li class="recharge"><span class="cursor">物流成本</span> <span class="cursor">资金明细</span></li>
-              <li class="changeQQ"><span class="cursor">修改QQ/微信</span></li> <li class="exit cursor" @click="logout()">退出</li>
-            </ul>
-          </transition>
+          <strong class="cursor userInfo" @mouseover="yiRuUserInfo" @mouseout="yiChuUserInfo">Hi~{{ name }}
+            <Icon type='ios-arrow-down' size="20" />
+          </strong>
+          <!-- <transition name="bounce"> -->
+          <ul class="infoBox" style="overflow: hidden; padding-top: 0px; padding-bottom: 0px; overhide:hide;height:0;" @mouseover="yiRuUserInfo" @mouseout="yiChuUserInfo">
+            <li class="head"><img src="http://106.14.154.124:8099/images/head.jpg" alt="用户头像"></li>
+            <li class="userInfo">Hi~{{ name }}</li>
+            <li class="level">
+              <Icon type="ios-star" color="#FFB10F" />
+              <span>注册用户</span>
+              <span>首重3.5元起</span>
+            </li>
+            <li class="balance"><span>账户余额</span> <strong>￥{{ wealth }}</strong></li>
+            <li class="recharge"><span class="cursor">物流成本</span> <span class="cursor">资金明细</span></li>
+            <li class="changeQQ"><span class="cursor" @click="openUpdateModel">修改QQ/微信</span></li>
+            <li class="exit cursor" @click="logout()">退出</li>
+          </ul>
+          <!-- </transition> -->
         </div>
       </div>
       <div class="alert">
-        <div class="el-dialog__wrapper" style="display: none;">
-          <div class="el-dialog" style="margin-top: 15vh; width: 600px;">
-            <div class="el-dialog__header"><span class="el-dialog__title">修改QQ/微信</span>
-              <button type="button" aria-label="Close" class="el-dialog__headerbtn"><i class="el-dialog__close el-icon el-icon-close" /></button>
-            </div>
-            <!---->
-            <div class="el-dialog__footer"><span class="dialog-footer"><b class="button-w">取消</b> <b class="button-n">确定</b></span></div>
+        <Modal v-model="updateModel" title="修改QQ和微信" :styles="modelStyle">
+          <Form ref="formValidate" :model="updateData" :rules="ruleValidate" :label-width="80" class="updateFrom">
+            <FormItem label="QQ" prop="qq">
+              <i-input v-model="updateData.qq" placeholder="请输入QQ账号" style="width: 300px"></i-input>
+            </FormItem>
+            <FormItem label="微信" prop="wechat">
+              <i-input v-model="updateData.wechat" placeholder="请输入微信账号" style="width: 300px"></i-input>
+            </FormItem>
+            <FormItem>
+              <Button type="primary" @click="handleSubmit">保存</Button>
+              <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
+            </FormItem>
+          </Form>
+
+          <div slot="footer">
           </div>
-        </div>
+
+        </Modal>
+
       </div>
     </div>
   </div>
@@ -54,20 +61,29 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { Message } from 'iview'
 
 export default {
   components: {},
   data() {
     return {
-      show: false
+      show: false,
+      updateModel: false,
+      updateData: {
+        qq: this.$store.getters.qq,
+        wechat: this.$store.getters.wechat
+      },
+      ruleValidate: {
+        qq: [{ required: true, message: 'QQ号码不能为空' }],
+        wechat: [{ required: true, message: '微信不能为空' }]
+      },
+      modelStyle: {
+        'margin-top': '50px'
+      }
     }
   },
   computed: {
-    ...mapGetters([
-      'name',
-      'avatar',
-      'balance'
-    ]),
+    ...mapGetters(['name', 'wealth']),
     key() {
       return this.$route.path
     }
@@ -89,8 +105,43 @@ export default {
     },
     showInfo() {
       this.show = !this.show
+    },
+    openUpdateModel() {
+      this.updateModel = true
+    },
+    handleSubmit() {
+      Message.destroy()
+      this.$refs.formValidate.validate(valid => {
+        if (valid) {
+          this.$store
+            .dispatch('UpdateInfo', this.updateData)
+            .then(res => {
+              if (res.returnCode === '0000') {
+                Message.success('修改成功 !')
+              } else {
+                Message.info(res.returnMessage)
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        } else {
+          Message.error('请输入必填参数 !')
+        }
+      })
+    },
+    handleCancel() {
+      this.$refs.formValidate.resetFields()
+      this.updateModel = false
+    },
+    yiRuUserInfo() {
+      const elem = document.getElementsByClassName('infoBox')
+      elem[0].style.height = '300px'
+    },
+    yiChuUserInfo() {
+      const elem = document.getElementsByClassName('infoBox')
+      elem[0].style.height = '0px'
     }
-
   }
 }
 </script>
@@ -126,13 +177,13 @@ export default {
     }
   }
 }
-.userTitle .titleWrap .ivu-dropdown-item  img {
-    text-align: center;
-    line-height: 1;
-    margin-top: 30px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+.userTitle .titleWrap .ivu-dropdown-item img {
+  text-align: center;
+  line-height: 1;
+  margin-top: 30px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 .userTitle .titleWrap .left span:hover {
   color: #d01126;
@@ -179,7 +230,7 @@ export default {
   position: relative;
 }
 .userTitle .titleWrap .loged .notice:after {
-  content: "";
+  content: '';
   position: absolute;
   top: -2px;
   right: -2px;
@@ -191,13 +242,15 @@ export default {
 .userTitle .titleWrap .loged .infoBox {
   position: absolute;
   z-index: 99;
-  top: 45px;
+  top: 48px;
   right: 0;
   padding: 0 20px;
   background: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
   border: 1px solid #eee;
+  box-sizing: border-box;
   border-radius: 4px;
+  transition: height 0.6s ease;
 }
 .userTitle .titleWrap .loged .infoBox li {
   line-height: 38px;
@@ -299,10 +352,10 @@ export default {
   margin-right: 20px;
 }
 .bounce-enter-active {
-  animation: bounce-in .6s;
+  animation: bounce-in 0.6s;
 }
 .bounce-leave-active {
-  animation: bounce-in .4s reverse;
+  animation: bounce-in 0.4s reverse;
 }
 @keyframes bounce-in {
   0% {
@@ -314,5 +367,8 @@ export default {
   100% {
     transform: scale(1);
   }
+}
+.updateFrom {
+  margin-top: 20px;
 }
 </style>

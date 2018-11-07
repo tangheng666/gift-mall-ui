@@ -95,8 +95,7 @@
 
 <script>
 export default {
-  components: {
-  },
+  components: {},
   data() {
     return {}
   },
@@ -156,6 +155,37 @@ export default {
   height: 100%;
   cursor: pointer;
 }
+.shopIndex .banner .el-carousel {
+  overflow: hidden;
+  position: relative;
+  .el-carousel__container {
+    position: relative;
+  }
+  .el-carousel__indicators {
+    position: absolute;
+    list-style: none;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+    z-index: 2;
+    .el-carousel__button {
+      display: block;
+      opacity: 0.48;
+      width: 30px;
+      height: 2px;
+      background-color: #fff;
+      border: none;
+      outline: 0;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      -webkit-transition: 0.3s;
+      transition: 0.3s;
+    }
+  }
+}
 
 .shopIndex .showBox {
   background: #f4f4f4;
@@ -199,7 +229,7 @@ export default {
   font-weight: 700;
 }
 .shopIndex .showBox .showGoodsBox .titles strong:before {
-  content: "";
+  content: '';
   position: absolute;
   left: -12px;
   top: 0;

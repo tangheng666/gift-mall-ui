@@ -25,7 +25,7 @@
         <div class="topInfo">
           <div class="title"><strong><i class="userIcon"/> {{ name }} </strong> <span>完善资料</span></div>
           <div class="money"><span>当前余额</span>
-          <strong>{{ balance }}</strong> <b class="button-n">充值</b></div>
+          <strong>{{ wealth }}</strong> <b class="button-n">充值</b></div>
         </div>
         <div class="bottomPrice">
           <div class="title"><strong>圆通快递</strong>
@@ -93,8 +93,7 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'avatar',
-      'balance'
+      'wealth'
     ])
   },
   methods: {}

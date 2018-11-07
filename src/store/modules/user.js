@@ -1,31 +1,44 @@
-import { loginByUsername, logout, getUserInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import {
+  getUserInfo,
+  loginByUsername,
+  logout,
+  registerByUsername,
+  updateInfo
+} from '@/api/user'
+import {
+  getToken,
+  removeToken,
+  setToken
+} from '@/utils/auth'
 
 const user = {
   state: {
-    user: '',
+    usrid: '',
     status: '',
     code: '',
     token: getToken(),
     name: '',
-    avatar: '',
-    introduction: '',
-    balance: '',
-    roles: [],
+    qq: '',
+    wechat: '',
+    wealth: 0,
+    role: '',
     setting: {
       articlePlatform: []
     }
   },
 
   mutations: {
+    SET_USRID: (state, usrid) => {
+      state.usrid = usrid
+    },
     SET_CODE: (state, code) => {
       state.code = code
     },
     SET_TOKEN: (state, token) => {
       state.token = token
     },
-    SET_INTRODUCTION: (state, introduction) => {
-      state.introduction = introduction
+    SET_QQ: (state, qq) => {
+      state.qq = qq
     },
     SET_SETTING: (state, setting) => {
       state.setting = setting
@@ -36,27 +49,58 @@ const user = {
     SET_NAME: (state, name) => {
       state.name = name
     },
-    SET_AVATAR: (state, avatar) => {
-      state.avatar = avatar
+    SET_WECHAT: (state, wechat) => {
+      state.wechat = wechat
     },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
+    SET_ROLE: (state, role) => {
+      state.role = role
     },
-    SET_BALANCE: (state, balance) => {
-      state.balance = balance
+    SET_WEALTH: (state, wealth) => {
+      state.wealth = wealth
     }
   },
 
   actions: {
     // 用户名登录
-    LoginByUsername({ commit }, userInfo) {
+    LoginByUsername({
+      commit
+    }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
           const data = response.data
-          commit('SET_TOKEN', data.token)
-          setToken(response.data.token)
-          resolve()
+          if (data.returnCode !== '0000') {
+            resolve(data)
+          } else {
+            const resData = data.data
+            if (resData.usrRole === 'MEMBER') {
+              commit('SET_TOKEN', resData.token)
+              commit('SET_USRID', resData.usrid)
+              commit('SET_ROLE', resData.usrRole)
+              setToken(resData.token)
+            }
+            resolve(data)
+          }
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    RegisterByUsername({
+      commit
+    }, userInfo) {
+      return new Promise((resolve, reject) => {
+        registerByUsername(userInfo.mobile, userInfo.password, userInfo.code, userInfo.qq, userInfo.wechat).then(response => {
+          const data = response.data
+          if (data.returnCode !== '0000') {
+            resolve(data)
+          } else {
+            commit('SET_TOKEN', data.data.token)
+            commit('SET_USRID', data.data.usrid)
+            commit('SET_ROLE', data.data.usrRole)
+            setToken(data.data.token)
+            resolve(data)
+          }
         }).catch(error => {
           reject(error)
         })
@@ -64,25 +108,39 @@ const user = {
     },
 
     // 获取用户信息
-    GetUserInfo({ commit, state }) {
+    GetUserInfo({
+      commit,
+      state
+    }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
-          }
-          const data = response.data
-
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+          const data = response.data.data
+          commit('SET_NAME', data.mobile)
+          commit('SET_WEALTH', data.wealth)
+          commit('SET_QQ', data.qq)
+          commit('SET_WECHAT', data.wechat)
+          commit('SET_USRID', data.usrid)
+          resolve()
+        }).catch(error => {
+          console.log(error)
+          reject(error)
+        })
+      })
+    },
+    UpdateInfo({
+      commit,
+      state
+    }, data) {
+      return new Promise((resolve, reject) => {
+        updateInfo(data.qq, data.wechat, state.token).then((res) => {
+          const data = res.data
+          if (data.returnCode !== '0000') {
+            resolve(data)
           } else {
-            reject('getInfo: roles must be a non-null array !')
+            commit('SET_QQ', updateInfo.qq)
+            commit('SET_WECHAT', updateInfo.wechat)
+            resolve(data)
           }
-
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          commit('SET_BALANCE', data.balance)
-          resolve(response)
         }).catch(error => {
           reject(error)
         })
@@ -104,11 +162,14 @@ const user = {
     // },
 
     // 登出
-    LogOut({ commit, state }) {
+    LogOut({
+      commit,
+      state
+    }) {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
+          commit('SET_ROLE', [])
           removeToken()
           resolve()
         }).catch(error => {
@@ -118,7 +179,9 @@ const user = {
     },
 
     // 前端 登出
-    FedLogOut({ commit }) {
+    FedLogOut({
+      commit
+    }) {
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
         removeToken()
@@ -127,7 +190,10 @@ const user = {
     },
 
     // 动态修改权限
-    ChangeRoles({ commit, dispatch }, role) {
+    ChangeRoles({
+      commit,
+      dispatch
+    }, role) {
       return new Promise(resolve => {
         commit('SET_TOKEN', role)
         setToken(role)

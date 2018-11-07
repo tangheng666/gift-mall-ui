@@ -5,30 +5,26 @@
         <div class="leftBox">
           <h2>欢迎来到求新品</h2>
           <h3>我们提供赠品采购、发货、一站式服务。</h3>
-          <div class="line"><span class="active"/><span
-            class=""/></div>
+          <div class="line"><span class="active" /><span class="" /></div>
           <div class="box">
             <ul class="form">
-              <li class="inputLi"><span
-                class="admin"/>
+              <li class="inputLi"><span class="admin" />
                 <input v-model="formData.username" type="text" placeholder="帐号">
               </li>
-              <li class="inputLi"><span
-                class="lock"/>
+              <li class="inputLi"><span class="lock" />
                 <input v-model="formData.password" type="password" placeholder="密码">
               </li>
             </ul>
             <div class="operate">
-              <span/>
+              <span />
               <span>忘记密码？</span>
             </div>
             <div class="footer"><b class="login" @click="handleLogin">登录</b>
-            <b class="toReg" @click="goReg">去注册</b></div>
+              <b class="toReg" @click="goReg">去注册</b>
+            </div>
           </div>
         </div>
-        <div class="rightImg"><img
-          src="http://106.14.154.124:8099/images/reg/登录_插图.png"
-          alt="png"></div>
+        <div class="rightImg"><img src="http://106.14.154.124:8099/images/reg/登录_插图.png" alt="png"></div>
       </div>
     </div>
   </div>
@@ -56,11 +52,10 @@ export default {
       },
       immediate: true
     }
-
   },
   methods: {
     goReg() {
-      this.$router.push('/register')
+      this.$router.push({ name: 'register' })
     },
     handleLogin() {
       Message.destroy()
@@ -73,11 +68,22 @@ export default {
 
         return
       }
-      this.$store.dispatch('LoginByUsername', this.formData).then(() => {
-        this.$router.push({ path: this.redirect || '/' })
-      }).catch(() => {
-        Message.info('账号或密码错误')
-      })
+      this.$store
+        .dispatch('LoginByUsername', this.formData)
+        .then(res => {
+          if (res.data.usrRole !== 'MEMBER') {
+            Message.error('不支持该用户角色登录！')
+            return
+          }
+          if (res.returnCode === '0000') {
+            this.$router.push({ path: this.redirect || '/' })
+          } else {
+            Message.info(res.returnMessage)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   }
 }
@@ -85,94 +91,95 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .login {
-	width: 100%;
-	height: 100%
+  width: 100%;
+  height: 100%;
 }
 .login .box {
-	width: 410px
+  width: 410px;
 }
 .login .box .form {
-	border: 1px solid #ddd;
-	border-radius: 10px
+  border: 1px solid #ddd;
+  border-radius: 10px;
 }
 .login .box .form li {
-	height: 72px;
-	box-sizing: border-box;
-	padding: 20px;
-	display: -ms-flexbox;
-	display: flex;
-	border-bottom: 1px solid #ddd
+  height: 72px;
+  box-sizing: border-box;
+  padding: 20px;
+  display: -ms-flexbox;
+  display: flex;
+  border-bottom: 1px solid #ddd;
 }
 .login .box .form li:last-child {
-	border: none
+  border: none;
 }
 .login .box .form li span {
-	width: 20px;
-	margin-right: 20px;
-	vertical-align: middle
+  width: 20px;
+  margin-right: 20px;
+  vertical-align: middle;
 }
 .login .box .form li input {
-	-ms-flex: 1;
-	flex: 1;
-	border: none;
-	outline: none;
-	-webkit-appearance: none;
-	font-size: 20px;
-	line-height: 50px
+  -ms-flex: 1;
+  flex: 1;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  font-size: 20px;
+  line-height: 50px;
 }
 .login .box .form li .admin {
-background:url(http://106.14.154.124:8099/images/mobile/个人.png) no-repeat;
-	background-size: 100%
+  background: url(http://106.14.154.124:8099/images/mobile/个人.png) no-repeat;
+  background-size: 100%;
 }
 .login .box .form li .lock {
-background:url(http://106.14.154.124:8099/images/mobile/密码.png) no-repeat;
-	background-size: 100%
+  background: url(http://106.14.154.124:8099/images/mobile/密码.png) no-repeat;
+  background-size: 100%;
 }
 .login .box .operate {
-	display: -ms-flexbox;
-	display: flex;
-	-ms-flex-pack: justify;
-	justify-content: space-between;
-	font-size: 20px;
-	line-height: 28px;
-	color: #333;
-	cursor: pointer;
-	margin-bottom: 60px;
-	margin-top: 10px
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  font-size: 20px;
+  line-height: 28px;
+  color: #333;
+  cursor: pointer;
+  margin-bottom: 60px;
+  margin-top: 10px;
 }
-.login .box .operate .forget, .login .box .operate span {
-	font-size: 14px;
-	line-height: 18px;
-	color: #333
+.login .box .operate .forget,
+.login .box .operate span {
+  font-size: 14px;
+  line-height: 18px;
+  color: #333;
 }
 .login .box .footer {
-	display: -ms-flexbox;
-	display: flex;
-	-ms-flex-align: center;
-	align-items: center
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
 }
 .login .box .footer b {
-	width: 172px;
-	height: 45px;
-	line-height: 45px;
-	text-align: center;
-	font-size: 20px;
-	font-weight: 700;
-	margin-right: 50px;
-	border-radius: 10px;
-	cursor: pointer
+  width: 172px;
+  height: 45px;
+  line-height: 45px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  margin-right: 50px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 .login .box .footer .login {
-	background: #f16591;
-	box-shadow: 8px 5px 11px RGBA(241,101,145,.3);
-	color: #fff
+  background: #f16591;
+  box-shadow: 8px 5px 11px RGBA(241, 101, 145, 0.3);
+  color: #fff;
 }
 .login .box .footer a {
   text-decoration: none;
 }
 .login .box .footer .toReg {
-	background: #fff;
-	box-shadow: 0 -1px 11px RGBA(241,101,145,.23);
-	color: #f16591
+  background: #fff;
+  box-shadow: 0 -1px 11px RGBA(241, 101, 145, 0.23);
+  color: #f16591;
 }
 </style>

@@ -5,29 +5,30 @@
         <div class="leftBox">
           <h2>欢迎来到求新品</h2>
           <h3>我们提供赠品采购、发货、一站式服务。</h3>
-          <div class="line"><span class="" /><span class="active" /></div>
+          <div class="line"><span /><span class="active" /></div>
           <div class="box">
             <ul class="form">
               <li class="inputLi">
-                <input type="text" placeholder="请输入手机号">
+                <input v-model="formData.mobile" type="text" placeholder="请输入手机号">
               </li>
               <li class="inputLi">
-                <input type="number" placeholder="请输入验证码">
-              <span class="getCode">获取验证码</span> <span class="runCode getCode" style="display: none;">s</span></li>
-              <li class="inputLi">
-                <input type="password" placeholder="请设置密码">
+                <input v-model="formData.code" type="text" placeholder="请输入验证码">
+                <span class="getCode">获取验证码</span> <span class="runCode getCode" style="display: none;">s</span>
               </li>
               <li class="inputLi">
-                <input type="number" placeholder="输入QQ号">
+                <input v-model="formData.password" type="password" placeholder="请设置密码">
               </li>
               <li class="inputLi">
-                <input type="text" placeholder="输入微信号">
+                <input v-model="formData.qq" type="text" placeholder="输入QQ号">
+              </li>
+              <li class="inputLi">
+                <input v-model="formData.wechat" type="text" placeholder="输入微信号">
               </li>
             </ul>
             <div class="operate"><strong>QQ和微信便于我们的客服为你更好地服务。</strong>
               <router-link to="/login"><span>返回登录</span></router-link>
             </div>
-            <div class="footer"><b class="toReg">完成注册</b></div>
+            <div class="footer"><b class="toReg" @click="handleReg">完成注册</b></div>
           </div>
         </div>
         <div class="rightImg"><img src="http://106.14.154.124:8099/images/reg/登录_插图.png" alt="png"></div>
@@ -37,13 +38,68 @@
 </template>
 
 <script>
+import { Message } from 'iview'
 export default {
   components: {},
   data() {
-    return {}
+    return {
+      formData: {
+        mobile: '',
+        code: '',
+        password: '',
+        qq: '',
+        wechat: ''
+      },
+      redirect: ''
+    }
   },
   computed: {},
-  methods: {}
+  watch: {
+    $route: {
+      handler: function(route) {
+        this.redirect = route.query && route.query.redirect
+      },
+      immediate: true
+    }
+  },
+  methods: {
+    handleReg() {
+      Message.destroy()
+      if (!this.formData.mobile || this.formData.mobile.trim() === '') {
+        Message.info('手机号不能为空')
+        return
+      }
+      if (!this.formData.code || this.formData.code.trim() === '') {
+        Message.info('验证码不能为空')
+
+        return
+      }
+      if (!this.formData.password || this.formData.password.trim() === '') {
+        Message.info('密码不能为空')
+        return
+      }
+      if (!this.formData.qq || this.formData.qq.trim() === '') {
+        Message.info('QQ不能为空')
+        return
+      }
+      if (!this.formData.wechat || this.formData.wechat.trim() === '') {
+        Message.info('微信不能为空')
+        return
+      }
+      this.$store
+        .dispatch('RegisterByUsername', this.formData)
+        .then((res) => {
+          if (res.returnCode === '0000') {
+            this.$router.push({ path: this.redirect || '/' })
+          } else {
+            Message.info(res.returnMessage)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
 }
 </script>
 

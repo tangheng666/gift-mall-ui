@@ -24,10 +24,14 @@ ul {
   list-style: none;
 }
 
+* {
+  box-sizing:content-box;
+}
+
 
 .backStage .showContent .left {
     width: 162px;
-    min-width: 162px; 
+    min-width: 162px;
     box-sizing: border-box;
     position: relative;
     border-right: 1px solid #ddd
@@ -972,7 +976,7 @@ ul {
   //  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAeCAYAAAA/xX6fAAAAAXNSR…Ivl9evGwdkRjDcmd75WY0/GLibOgWCrtiN8D1lzZjGz/F9AMd6m6XWimRKAAAAAElFTkSuQmCC) no-repeat;
     background-size: 100% 100%;
   }
-  
+
 .handleBase {
 	display: -ms-flexbox;
 	display: flex;
