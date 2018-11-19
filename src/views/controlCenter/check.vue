@@ -23,7 +23,7 @@
           </div>
           <b class="button-w">查询</b>
         </div>
-        <div class="noCont"><img src="http://106.14.154.124:8099/images/noContainer.svg" alt="">
+        <div class="noCont"><img src="http://106.14.154.124:8099/images/noContainer.svg" alt="aaa">
           <p>暂无数据</p>
         </div>
         <div class="step1" />
