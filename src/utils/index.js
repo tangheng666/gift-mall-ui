@@ -1,6 +1,22 @@
 /**
  * Created by jiachenpan on 16/11/18.
  */
+export function projectName() {
+  return '礼品商城'
+}
+
+export function title(title) {
+  title = title || projectName()
+  window.document.title = title
+}
+export function toDecimal(x) {
+  var f = parseFloat(x)
+  if (isNaN(f)) {
+    return
+  }
+  f = Math.round(x * 100) / 100
+  return f
+}
 
 export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
@@ -26,7 +42,9 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
     let value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value]
+    }
     if (result.length > 0 && value < 10) {
       value = '0' + value
     }
@@ -129,11 +147,11 @@ export function param2Obj(url) {
   }
   return JSON.parse(
     '{"' +
-      decodeURIComponent(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"') +
-      '"}'
+    decodeURIComponent(search)
+      .replace(/"/g, '\\"')
+      .replace(/&/g, '","')
+      .replace(/=/g, '":"') +
+    '"}'
   )
 }
 
@@ -191,43 +209,42 @@ export function toggleClass(element, className) {
   element.className = classString
 }
 
-export const pickerOptions = [
-  {
-    text: '今天',
-    onClick(picker) {
-      const end = new Date()
-      const start = new Date(new Date().toDateString())
-      end.setTime(start.getTime())
-      picker.$emit('pick', [start, end])
-    }
-  },
-  {
-    text: '最近一周',
-    onClick(picker) {
-      const end = new Date(new Date().toDateString())
-      const start = new Date()
-      start.setTime(end.getTime() - 3600 * 1000 * 24 * 7)
-      picker.$emit('pick', [start, end])
-    }
-  },
-  {
-    text: '最近一个月',
-    onClick(picker) {
-      const end = new Date(new Date().toDateString())
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-      picker.$emit('pick', [start, end])
-    }
-  },
-  {
-    text: '最近三个月',
-    onClick(picker) {
-      const end = new Date(new Date().toDateString())
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-      picker.$emit('pick', [start, end])
-    }
+export const pickerOptions = [{
+  text: '今天',
+  onClick(picker) {
+    const end = new Date()
+    const start = new Date(new Date().toDateString())
+    end.setTime(start.getTime())
+    picker.$emit('pick', [start, end])
   }
+},
+{
+  text: '最近一周',
+  onClick(picker) {
+    const end = new Date(new Date().toDateString())
+    const start = new Date()
+    start.setTime(end.getTime() - 3600 * 1000 * 24 * 7)
+    picker.$emit('pick', [start, end])
+  }
+},
+{
+  text: '最近一个月',
+  onClick(picker) {
+    const end = new Date(new Date().toDateString())
+    const start = new Date()
+    start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+    picker.$emit('pick', [start, end])
+  }
+},
+{
+  text: '最近三个月',
+  onClick(picker) {
+    const end = new Date(new Date().toDateString())
+    const start = new Date()
+    start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+    picker.$emit('pick', [start, end])
+  }
+}
 ]
 
 export function getTime(type) {
@@ -236,6 +253,14 @@ export function getTime(type) {
   } else {
     return new Date(new Date().toDateString())
   }
+}
+
+export function whetherToday(type) {
+  const faHuoDate = new Date()
+  faHuoDate.setHours(16)
+  faHuoDate.setMinutes(30)
+  faHuoDate.setSeconds(0)
+  return new Date().getTime() < faHuoDate.getTime()
 }
 
 export function debounce(func, wait, immediate) {

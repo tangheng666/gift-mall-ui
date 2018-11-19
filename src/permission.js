@@ -4,12 +4,14 @@ import { Message } from 'iview'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'// progress bar style
 import { getToken } from '@/utils/auth' // getToken from cookie
+import { title } from '@/utils'
 
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
 const whiteList = ['/login', '/auth-redirect', '/index', '/register']// no redirect whitelist
 
 router.beforeEach((to, from, next) => {
+  title(to.meta.title)
   NProgress.start() // start progress bar
   if (getToken()) { // determine if there has token
     /* has token*/
@@ -22,7 +24,7 @@ router.beforeEach((to, from, next) => {
           // const roles = res.data.roles // note: roles must be a array! such as: ['editor','develop']
           // store.dispatch('GenerateRoutes', { roles }).then(() => { // 根据roles权限生成可访问的路由表
           //   router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
-
+          store.dispatch('expressFee')
           // })
           next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
         }).catch((err) => {

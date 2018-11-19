@@ -9,7 +9,7 @@
           <div class="box">
             <ul class="form">
               <li class="inputLi"><span class="admin" />
-                <input v-model="formData.username" type="text" placeholder="帐号">
+                <input v-model="formData.mobile" type="text" placeholder="帐号">
               </li>
               <li class="inputLi"><span class="lock" />
                 <input v-model="formData.password" type="password" placeholder="密码">
@@ -17,7 +17,7 @@
             </ul>
             <div class="operate">
               <span />
-              <span>忘记密码？</span>
+              <!-- <span>忘记密码？</span> -->
             </div>
             <div class="footer"><b class="login" @click="handleLogin">登录</b>
               <b class="toReg" @click="goReg">去注册</b>
@@ -38,7 +38,7 @@ export default {
   data() {
     return {
       formData: {
-        username: '',
+        mobile: '',
         password: ''
       },
       redirect: undefined
@@ -59,7 +59,7 @@ export default {
     },
     handleLogin() {
       Message.destroy()
-      if (!this.formData.username || this.formData.username.trim() === '') {
+      if (!this.formData.mobile || this.formData.mobile.trim() === '') {
         Message.info('账号不能为空')
         return
       }
@@ -71,11 +71,11 @@ export default {
       this.$store
         .dispatch('LoginByUsername', this.formData)
         .then(res => {
-          if (res.data.usrRole !== 'MEMBER') {
-            Message.error('不支持该用户角色登录！')
-            return
-          }
           if (res.returnCode === '0000') {
+            if (res.data.usrRole !== 'MEMBER') {
+              Message.error('不支持该用户角色登录！')
+              return
+            }
             this.$router.push({ path: this.redirect || '/' })
           } else {
             Message.info(res.returnMessage)

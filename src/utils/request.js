@@ -1,20 +1,39 @@
 import axios from 'axios'
-import { Message } from 'iview'
+import {
+  Message
+} from 'iview'
 import store from '@/store'
+import {
+  getToken
+} from '@/utils/auth'
+import qs from 'qs'
 
-// create an axios instance
 const service = axios.create({
   baseURL: process.env.BASE_API, // api 的 base_url
+  method: 'post',
   timeout: 5000 // request timeout
 })
+
+service.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 
 // request interceptor
 service.interceptors.request.use(
   config => {
     // Do something before request is sent
-    if (store.getters.token) {
-      // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
-      // config.headers['X-Token'] = getToken()
+    config.transformRequest = function(data) {
+      if (typeof (data) !== 'undefined') {
+        if (Object.keys(data).length > 0 && data.hasOwnProperty('page') && !isNaN(data.page)) {
+          data.offset = (data.page - 1) * data.limit
+          delete data.page
+        }
+        if (store.getters.token) {
+          data.token = getToken()
+        }
+        data = qs.stringify(data)
+      } else {
+        data = 'token=' + getToken()
+      }
+      return data
     }
     return config
   },

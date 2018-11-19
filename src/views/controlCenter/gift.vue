@@ -1,93 +1,79 @@
+<style lang="scss">
+.ivu-input[disabled] {
+  background-color: #fff;
+}
+</style>
+
 <template>
-  <div class="backStage">
-    <div class="notice">
-      <div class="noticeBase warning">
-        <div class="scrollWrap">
-          <p>
-            <b>
-              <span><i class="el-icon-warning" /></span>
-              <span>紧急通知</span>
-              <em>esapi服务器于24日晚10点半至25日早6点停机维护，请提前做好准备 </em>
-            </b>
-          </p>
-          <p>
-            <b>
-              <span>
-                <i class="el-icon-warning" />
-              </span>
-              <span>紧急通知</span>
-              <em>esapi服务器于24日晚10点半至25日早6点停机维护，请提前做好准备 </em>
-            </b>
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="showContent">
-      <left-router />
-      <div class="right">
-        <div class="giftStore">
-          <div class="shopCarBox">
-            <div class="shopCarGift">
-              <div class="shopCarLeft">
-                <div class="shopCarNeedGoods"><img src="http://106.14.154.124:8099/images/needGoods2.png" alt="img"></div>
-                <div class="goodsList">
-                  <ul class="title">
-                    <li><span>价格</span> <strong><i class="top" /> <i class="bottom" /></strong></li>
-                    <li><span>重量</span> <strong><i class="top" /> <i class="bottom" /></strong></li>
-                    <li><span>销量</span> <strong><i class="top" /> <i class="bottom" /></strong></li>
-                  </ul>
-                  <ul class="goodsInfo">
-                    <li v-for="(item) in list" :key="item.id" class="cursorStyle">
-                      <div class="imgBox"><img :src="item.image_uri" alt="商品主图"></div>
-                      <p :title="item.content">{{ item.goods_desc }}</p>
-                      <div class="bottom">
-                        <div class="count"><i class="iconfont">￥</i><strong class="iconfont">{{ item.price }}</strong></div>
-                        <div class="joinCarBtn"><b class="button-n" @click="addCar(item)">加入礼品包</b></div>
-                      </div>
-                      <div class="leftNum"><span>重量：{{ item.weight }}kg</span> <span>库存：{{ item.inventory }}</span></div>
-                    </li>
-                    <!-- v-if="list.length % 4 >0" -->
-                    <li v-for="(item, index) in 4-(list.length % 4)<0?0:4-(list.length % 4)" :key="`empty`+index" class="empty" />
-                  </ul>
-                  <div class="pager">
-                    <Page :current="listQuery.page" :page-size-opts="[20, 40, 60, 80]" :page-size="listQuery.limit" :total="total" show-total show-sizer @on-page-size-change="handleSizeChange" @on-change="handleCurrentChange" />
-                    <div class="toTop" @click="jumpTop">
-                      <Icon type="ios-arrow-up" /> <span>TOP</span>
+  <div class="showContent">
+    <left-router />
+    <div class="right">
+      <div class="giftStore">
+        <div class="shopCarBox">
+          <div class="shopCarGift">
+            <div class="shopCarLeft">
+              <!-- <div class="shopCarNeedGoods"><img src="http://106.14.154.124:8099/images/needGoods2.png" alt="img"></div> -->
+              <div class="goodsList">
+                <ul class="title">
+                  <li><span>价格</span> <strong><i class="top" /> <i class="bottom" /></strong></li>
+                  <li><span>重量</span> <strong><i class="top" /> <i class="bottom" /></strong></li>
+                  <li><span>销量</span> <strong><i class="top" /> <i class="bottom" /></strong></li>
+                </ul>
+                <ul class="goodsInfo">
+                  <li v-for="(item) in list" :key="item.id" class="cursorStyle">
+                    <div class="imgBox">
+                      <img :src="item.photo" alt="商品主图">
                     </div>
+                    <p :title="item.summary">{{ item.summary }} {{ item.standard }}</p>
+                    <div class="bottom">
+                      <div class="count"><i class="iconfont">￥</i><strong class="iconfont">{{ item.price }}</strong></div>
+                      <div class="joinCarBtn"><b class="button-n" @click="addCar(item)">加入礼品包</b></div>
+                    </div>
+                    <div class="leftNum"><span>重量：{{ item.weight }}kg</span> <span>库存：{{ item.stock }}</span></div>
+                  </li>
+                  <!-- v-if="list.length % 4 >0" -->
+                  <li v-for="(item, index) in 4-(list.length % 4)<0?0:4-(list.length % 4)" :key="`empty`+index" class="empty" />
+                </ul>
+                <div class="pager">
+                  <Page :current="listQuery.page" :page-size-opts="[20, 40, 60, 80]" :page-size="listQuery.limit" :total="total" show-total show-sizer @on-page-size-change="handleSizeChange" @on-change="handleCurrentChange" />
+                  <div class="toTop" @click="jumpTop">
+                    <Icon type="ios-arrow-up" /> <span>TOP</span>
                   </div>
                 </div>
               </div>
-              <div class="shopCarRight">
-                <div class="titles"><span>产品</span> <span>单价</span>
-                  <span>重量</span> <span>数量</span> <span>总价</span></div>
-                <ul class="chooseList" v-if="myCarList.length >0">
-                  <li v-for="gift of myCarList" :key="`car`+gift.id">
-                    <div>
-                      <img :src="gift.image_uri" alt="img"></div>
-                    <div><span>￥ {{ gift.price }}</span></div>
-                    <div><span>{{ gift.weight }}kg</span></div>
-                    <div class="count">
-                      <i class="el-icon-remove">
-                      </i> <input type="number" :value="gift.count">
-                      <i class="el-icon-circle-plus"></i>
-                    </div>
-                    <div><span>￥{{gift.singleTotal}}</span></div>
-                    <i class="dele el-icon-circle-close-outline"></i>
-                  </li>
-                </ul>
-                <div v-else class="noCont">
-                  <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="noCont" class="noCont" />
-                </div>
-                <!---->
-                <div class="countMoneyBox mt120">
-                  <p><span>商品总额：</span> <strong>￥{{giftTotal}}</strong></p>
-                  <p><span>运费( <i>{{totalWeight}}kg</i>)：</span> <strong>￥0.0</strong></p>
-                  <p class="total"><span>总计：</span> <strong>￥{{totalMoney}}</strong></p>
-                </div>
-                <div class="operateBtn">
-                  <p><span>样品申请</span> <strong>立即采购</strong></p>
-                  <!-- <div class="setCommon">设为常用礼品包</div> -->
-                </div>
+            </div>
+            <div class="shopCarRight">
+              <div class="titles"><span>产品</span> <span>单价</span>
+                <span>重量</span> <span>数量</span> <span>总价</span>
+              </div>
+              <ul v-if="myCarList.length >0" class="chooseList">
+                <li v-for="gift of myCarList" :key="`car`+gift.id">
+                  <div>
+                    <img :src="gift.photo" alt="img">
+                  </div>
+                  <div><span>￥ {{ gift.price }}</span></div>
+                  <div><span>{{ gift.weight }}kg</span></div>
+                  <div class="count">
+                    <Icon type="ios-remove" @click="updateSignleItemCount(gift, false)" />
+                    <i-input v-model="gift.count" type="text" size="small" disabled />
+                    <Icon type="ios-add" @click="updateSignleItemCount(gift, true)" />
+                  </div>
+                  <div><span>￥{{ gift.singleTotal }}</span></div>
+                  <Icon type="ios-close-circle-outline" class="dele" @click="delSignleItem(gift)" />
+                </li>
+              </ul>
+              <div v-else class="noCont">
+                <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="noCont" class="noCont">
+              </div>
+              <!---->
+              <div class="countMoneyBox mt120">
+                <p><span>商品总额：</span> <strong>￥{{ giftTotal }}</strong></p>
+                <p><span>运费( <i>{{ totalWeight }}kg</i>)：</span> <strong>￥{{ totalWuLiu }}</strong></p>
+                <p class="total"><span>总计：</span> <strong>￥{{ totalMoney }}</strong></p>
+              </div>
+              <div class="operateBtn">
+                <p> <strong @click="goBuy">立即采购</strong></p>
+                <!--  <span>样品申请</span>   <div class="setCommon">设为常用礼品包</div> -->
               </div>
             </div>
           </div>
@@ -98,10 +84,11 @@
 </template>
 
 <script>
-import { Message } from 'iview'
 import { leftRouter } from './components'
 import { goodsList } from '@/api/goods'
 import numeral from 'numeral'
+import statusCode from '@/common/statusCode'
+
 export default {
   name: 'Gift',
   components: {
@@ -127,9 +114,10 @@ export default {
       },
       myCarMap: new Map(),
       myCarList: [],
-      giftTotal: 0.0,
-      totalWeight: 0.0,
-      totalMoney: '0.00'
+      giftTotal: '0.0',
+      totalWeight: '0.0',
+      totalMoney: '0.00',
+      totalWuLiu: '0.0'
     }
   },
   created() {
@@ -138,9 +126,17 @@ export default {
   methods: {
     getList() {
       goodsList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+        const resData = response.data
+        if (statusCode.OK === resData.returnCode) {
+          this.list = response.data.data
+          this.total = response.data.total
+        } else {
+          this.$Message.info(resData.returnMessage)
+        }
       })
+    },
+    goBuy() {
+      this.$router.push('/control/buy')
     },
     handleSizeChange(val) {
       this.listQuery.limit = val
@@ -152,30 +148,68 @@ export default {
     },
     addCar(item) {
       this.myCarList = []
-      let itemId = item.id
-      let singleTotal = 0.0
-      let count = 1
+      const itemId = item.id
+      const count = 1
       if (this.myCarMap.has(itemId)) {
-        let cureentItem = this.myCarMap.get(itemId)
+        const cureentItem = this.myCarMap.get(itemId)
         cureentItem.count++
         cureentItem.singleTotal = numeral(
           parseFloat(cureentItem.singleTotal) + cureentItem.price
         ).format('0.00')
-        this.myCarMap.set(itemId, item)
+        this.myCarMap.set(itemId, cureentItem)
       } else {
         item.count = count
         item.singleTotal = numeral(item.price).format('0.00')
         this.myCarMap.set(itemId, item)
       }
-      for (let myItem of this.myCarMap.values()) {
+      for (const myItem of this.myCarMap.values()) {
         this.myCarList.push(myItem)
       }
-      this.totalWeight = numeral(
-        parseFloat(this.totalWeight) + item.weight
-      ).format('0.00')
-      this.giftTotal = numeral(parseFloat(this.giftTotal) + item.price).format(
-        '0.00'
-      )
+      const totalWeightF = parseFloat(this.totalWeight) + item.weight
+      this.totalWeight = numeral(totalWeightF).format('0.00')
+      const giftTotalF = parseFloat(this.giftTotal) + item.price
+      this.giftTotal = numeral(giftTotalF).format('0.00')
+      const wuLiuPriceF = this.calculation(totalWeightF)
+      this.totalWuLiu = numeral(wuLiuPriceF).format('0.00')
+      this.totalMoney = numeral(wuLiuPriceF + giftTotalF).format('0.00')
+    },
+    removeCar(item, isDel) {
+      this.myCarList = []
+      const itemId = item.id
+      const cureentItem = this.myCarMap.get(itemId)
+      if (isDel) {
+        for (let i = 0; i < cureentItem.count; i++) {
+          const totalWeightF = parseFloat(this.totalWeight) - item.weight
+          this.totalWeight = numeral(totalWeightF).format('0.00')
+          const giftTotalF = parseFloat(this.giftTotal) - item.price
+          this.giftTotal = numeral(giftTotalF).format('0.00')
+          const wuLiuPriceF = this.calculation(totalWeightF)
+          this.totalWuLiu = numeral(wuLiuPriceF).format('0.00')
+          this.totalMoney = numeral(wuLiuPriceF + giftTotalF).format('0.00')
+        }
+        this.myCarMap.delete(itemId)
+      } else {
+        if (cureentItem.count > 1) {
+          cureentItem.count--
+          cureentItem.singleTotal = numeral(
+            parseFloat(cureentItem.singleTotal) - cureentItem.price
+          ).format('0.00')
+          this.myCarMap.set(itemId, cureentItem)
+        } else {
+          this.myCarMap.delete(itemId)
+        }
+        const totalWeightF = parseFloat(this.totalWeight) - item.weight
+        this.totalWeight = numeral(totalWeightF).format('0.00')
+        const giftTotalF = parseFloat(this.giftTotal) - item.price
+        this.giftTotal = numeral(giftTotalF).format('0.00')
+        const wuLiuPriceF = this.calculation(totalWeightF)
+        this.totalWuLiu = numeral(wuLiuPriceF).format('0.00')
+        this.totalMoney = numeral(wuLiuPriceF + giftTotalF).format('0.00')
+      }
+
+      for (const myItem of this.myCarMap.values()) {
+        this.myCarList.push(myItem)
+      }
     },
     jumpTop() {
       const shopCarLeft = document.getElementsByClassName('shopCarLeft')
@@ -203,6 +237,45 @@ export default {
           }, shudu)
         }
       }, shudu)
+    },
+    calculation(weight) {
+      const logisticObjStore = this.$store.getters.express
+      const logisticStr = JSON.stringify(logisticObjStore)
+      const logisticObj = JSON.parse(logisticStr)
+      let wuLiuPrice = 0.0
+      if (weight <= 0) {
+        return wuLiuPrice
+      } else if (weight <= logisticObj.firstWeight) {
+        wuLiuPrice = logisticObj.firstPrice
+      } else if (weight <= logisticObj.middleWeight) {
+        wuLiuPrice = logisticObj.middlePrice
+      } else {
+        const weightStr = weight + ''
+        const splitWeight = weightStr.split('.')
+        let zhengshu = splitWeight[0]
+        const xiaoshu = splitWeight[1]
+        if (parseInt(zhengshu) > 1) {
+          zhengshu -= 1
+          wuLiuPrice += logisticObj.middlePrice
+          wuLiuPrice += zhengshu * logisticObj.endPrice
+        } else {
+          wuLiuPrice += logisticObj.middlePrice
+        }
+        if (parseInt(xiaoshu) > 0) {
+          wuLiuPrice += logisticObj.endPrice
+        }
+      }
+      return wuLiuPrice
+    },
+    updateSignleItemCount(obj, flag) {
+      if (flag) {
+        this.addCar(obj)
+      } else {
+        this.removeCar(obj, false)
+      }
+    },
+    delSignleItem(obj) {
+      this.removeCar(obj, true)
     }
   }
 }
@@ -327,8 +400,7 @@ export default {
   text-overflow: ellipsis;
   height: 36px;
   overflow: hidden;
-  display: box;
-  display: -webkit-box;
+  display: flex;
   -webkit-line-clamp: 2;
   padding: 0 8px;
 }

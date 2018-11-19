@@ -3,7 +3,7 @@
     <div class="userTitle">
       <div class="titleWrap">
         <div class="left">
-          <span :class="key==='/index'?'active':''" class="cursor" @click="pageShow('/')"> 求新品首页</span>
+          <span :class="key==='/index'?'active':''" class="cursor" @click="pageShow('/')"> 幸运包首页</span>
           <span :class="key!=='/index'?'active':''" class="cursor" @click="pageShow('/control')">我的后台</span>
         </div>
 
@@ -11,49 +11,76 @@
           <em class="cursor textB" @click="login()">登录</em> <span>|</span> <em class="cursor textB" @click="register()">免费注册</em>
         </div>
         <div v-else class="right loged">
-          <Icon type="md-notifications-outline" size="16" class="cursor" />
+          <Icon type="md-notifications-outline" size="16" class="cursor" @click="goNoticeList" />
           <span>账户余额：<span>{{ wealth }}元</span>
           </span> <em class="button-tip rechargeBtn">充值</em>
           <strong class="cursor userInfo" @mouseover="yiRuUserInfo" @mouseout="yiChuUserInfo">Hi~{{ name }}
-            <Icon type='ios-arrow-down' size="20" />
+            <Icon type="ios-arrow-down" size="20" />
           </strong>
-          <!-- <transition name="bounce"> -->
           <ul class="infoBox" style="overflow: hidden; padding-top: 0px; padding-bottom: 0px; overhide:hide;height:0;" @mouseover="yiRuUserInfo" @mouseout="yiChuUserInfo">
-            <li class="head"><img src="http://106.14.154.124:8099/images/head.jpg" alt="用户头像"></li>
+            <li class="head"><img src="http://182.61.16.69:8080/images/e27274b4-5ba5-4074-b495-e6edb7d34508.jpg" alt="用户头像"></li>
             <li class="userInfo">Hi~{{ name }}</li>
             <li class="level">
-              <Icon type="ios-star" color="#FFB10F" />
+              <Icon type="ios-star" color="#FFB10F" style="padding-left:10px;padding-top:1px;"/>
               <span>注册用户</span>
               <span>首重3.5元起</span>
             </li>
             <li class="balance"><span>账户余额</span> <strong>￥{{ wealth }}</strong></li>
-            <li class="recharge"><span class="cursor">物流成本</span> <span class="cursor">资金明细</span></li>
+            <li class="recharge"><span class="cursor" @click="openLogisticListModel">物流成本</span> <span class="cursor" @click="goMoneyRecord">资金明细</span></li>
             <li class="changeQQ"><span class="cursor" @click="openUpdateModel">修改QQ/微信</span></li>
             <li class="exit cursor" @click="logout()">退出</li>
           </ul>
-          <!-- </transition> -->
         </div>
       </div>
       <div class="alert">
-        <Modal v-model="updateModel" title="修改QQ和微信" :styles="modelStyle">
+        <Modal v-model="updateModel" :styles="modelStyle" title="修改QQ和微信">
           <Form ref="formValidate" :model="updateData" :rules="ruleValidate" :label-width="80" class="updateFrom">
             <FormItem label="QQ" prop="qq">
-              <i-input v-model="updateData.qq" placeholder="请输入QQ账号" style="width: 300px"></i-input>
+              <i-input v-model="updateData.qq" placeholder="请输入QQ账号" style="width: 300px" />
             </FormItem>
             <FormItem label="微信" prop="wechat">
-              <i-input v-model="updateData.wechat" placeholder="请输入微信账号" style="width: 300px"></i-input>
+              <i-input v-model="updateData.wechat" placeholder="请输入微信账号" style="width: 300px" />
             </FormItem>
             <FormItem>
               <Button type="primary" @click="handleSubmit">保存</Button>
-              <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
+              <Button style="margin-left: 8px" @click="handleCancel">取消</Button>
             </FormItem>
           </Form>
-
-          <div slot="footer">
-          </div>
-
+          <div slot="footer" />
         </Modal>
 
+        <Modal v-model="logisticListModel" :styles="modelStyle" :width="800" :mask-closable="false" :closable="false">
+          <div class="logisticList">
+            <h2>圆通快递</h2>
+            <ul class="price">
+              <li>
+                <strong>地区 / 重量</strong>
+                <strong>0.5KG</strong>
+                <strong>0.5-1KG</strong>
+                <strong>续重(1KG以上)</strong>
+              </li>
+              <li>
+                <strong> 普通地区</strong>
+                <span>{{ express.firstPrice }} 元 / 单</span>
+                <span>{{ express.middlePrice }} 元 / 单</span>
+                <span>{{ express.endPrice }} 元 / KG</span>
+              </li>
+              <li>
+                <strong>偏远地区</strong>
+                <span>{{ express.farFirstPrice }} 元 / 单</span>
+                <span>{{ express.farMidllePrice }} 元 / 单</span>
+                <span>{{ express.farEndPrice }} 元 / KG</span>
+              </li>
+            </ul>
+            <div class="desc">
+              <span>*此物流费包含 <i>{{ express.description }}</i></span>
+              <span>*偏远地区 <i> {{ express.note }}</i></span>
+            </div>
+          </div>
+          <div slot="footer">
+            <b class="button-n" @click="closeLogisticListModel">了解</b>
+          </div>
+        </Modal>
       </div>
     </div>
   </div>
@@ -62,6 +89,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { Message } from 'iview'
+// import { expressFee } from '@/api/common'
 
 export default {
   components: {},
@@ -79,20 +107,26 @@ export default {
       },
       modelStyle: {
         'margin-top': '50px'
-      }
+      },
+      logisticListModel: false
     }
   },
   computed: {
-    ...mapGetters(['name', 'wealth']),
+    ...mapGetters(['name', 'wealth', 'express']),
     key() {
       return this.$route.path
     }
+  },
+  created() {
   },
   methods: {
     logout() {
       this.$store.dispatch('LogOut').then(() => {
         location.reload()
       })
+    },
+    goNoticeList() {
+      this.$router.push('/control/noticeList')
     },
     pageShow(target) {
       this.$router.push(target)
@@ -102,6 +136,9 @@ export default {
     },
     register() {
       this.$router.push('/register')
+    },
+    goMoneyRecord() {
+      this.$router.push('/control/fundsDetail')
     },
     showInfo() {
       this.show = !this.show
@@ -118,6 +155,7 @@ export default {
             .then(res => {
               if (res.returnCode === '0000') {
                 Message.success('修改成功 !')
+                this.updateModel = false
               } else {
                 Message.info(res.returnMessage)
               }
@@ -141,6 +179,12 @@ export default {
     yiChuUserInfo() {
       const elem = document.getElementsByClassName('infoBox')
       elem[0].style.height = '0px'
+    },
+    openLogisticListModel() {
+      this.logisticListModel = true
+    },
+    closeLogisticListModel() {
+      this.logisticListModel = false
     }
   }
 }
@@ -370,5 +414,49 @@ export default {
 }
 .updateFrom {
   margin-top: 20px;
+}
+
+.logisticList {
+  padding: 30px 40px;
+  h2 {
+    padding: 4px;
+  }
+  .price {
+    border: 1px solid #979797;
+    border-radius: 4px;
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px;
+      border: 1px #dedede;
+      font-size: 16px;
+      color: #303133;
+      line-height: 22px;
+      padding: 14px;
+      text-align: center;
+      border-bottom: 1px solid #979797;
+      strong {
+        font-weight: 700;
+        flex: 1;
+      }
+      span {
+        flex: 1;
+      }
+    }
+  }
+  .desc {
+    text-align: left;
+    padding: 12px;
+    span {
+      line-height: 22px;
+      font-size: 16px;
+      display: block;
+      padding: 22px;
+      i {
+        margin-left: 5px;
+        color: #ff3341;
+      }
+    }
+  }
 }
 </style>

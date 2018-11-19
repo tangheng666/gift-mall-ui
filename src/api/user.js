@@ -1,68 +1,34 @@
 import request from '@/utils/request'
-import qs from 'qs'
 
-export function loginByUsername(mobile, password) {
-  const data = qs.stringify({
-    mobile,
-    password
-  })
+export function loginByUsername(userInfo) {
   return request({
-    url: '/user/login',
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    data
+    url: '/login',
+    data: userInfo
   })
 }
 
-export function registerByUsername(mobile, password, code, qq, wechat) {
-  const data = qs.stringify({
-    mobile,
-    password,
-    code,
-    qq,
-    wechat
-  })
-
+export function registerByUsername(userInfo) {
   return request({
-    url: '/user/register',
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    data
+    url: '/register',
+    data: userInfo
   })
 }
 
 export function logout() {
   return request({
-    url: '/login/logout',
-    method: 'post'
+    url: '/login/logout'
   })
 }
 
-export function getUserInfo(token) {
-  const data = qs.stringify({
-    token
-  })
+export function getUserInfo() {
   return request({
-    url: '/user/loginDetail',
-    method: 'post',
-    data
+    url: '/loginDetail'
   })
 }
 
-
-export function updateInfo(qq, wechat, token) {
-  const data = qs.stringify({
-    qq,
-    wechat,
-    token
-  })
+export function updateInfo(userInfo) {
   return request({
-    url: '/user/updateUsrInfo',
-    method: 'post',
-    data
+    url: '/updateUsrInfo',
+    data: userInfo
   })
 }

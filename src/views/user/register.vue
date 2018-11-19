@@ -11,10 +11,10 @@
               <li class="inputLi">
                 <input v-model="formData.mobile" type="text" placeholder="请输入手机号">
               </li>
-              <li class="inputLi">
+              <!-- <li class="inputLi">
                 <input v-model="formData.code" type="text" placeholder="请输入验证码">
                 <span class="getCode">获取验证码</span> <span class="runCode getCode" style="display: none;">s</span>
-              </li>
+              </li> -->
               <li class="inputLi">
                 <input v-model="formData.password" type="password" placeholder="请设置密码">
               </li>
@@ -45,7 +45,7 @@ export default {
     return {
       formData: {
         mobile: '',
-        code: '',
+        code: '666666',
         password: '',
         qq: '',
         wechat: ''
@@ -69,11 +69,10 @@ export default {
         Message.info('手机号不能为空')
         return
       }
-      if (!this.formData.code || this.formData.code.trim() === '') {
-        Message.info('验证码不能为空')
-
-        return
-      }
+      // if (!this.formData.code || this.formData.code.trim() === '') {
+      //   Message.info('验证码不能为空')
+      //   return
+      // }
       if (!this.formData.password || this.formData.password.trim() === '') {
         Message.info('密码不能为空')
         return

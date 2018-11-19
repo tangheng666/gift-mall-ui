@@ -1,7 +1,8 @@
 import request from '@/utils/request'
-export function goodsList(data) {
+
+export function getFundsDetail(data) {
   return request({
-    url: '/goodsList',
+    url: '/fundsDetail',
     data
   })
 }

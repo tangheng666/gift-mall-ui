@@ -13,7 +13,7 @@ import {
 
 const user = {
   state: {
-    usrid: '',
+    id: '',
     status: '',
     code: '',
     token: getToken(),
@@ -28,8 +28,8 @@ const user = {
   },
 
   mutations: {
-    SET_USRID: (state, usrid) => {
-      state.usrid = usrid
+    SET_ID: (state, id) => {
+      state.id = id
     },
     SET_CODE: (state, code) => {
       state.code = code
@@ -65,9 +65,9 @@ const user = {
     LoginByUsername({
       commit
     }, userInfo) {
-      const username = userInfo.username.trim()
+      // const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
-        loginByUsername(username, userInfo.password).then(response => {
+        loginByUsername(userInfo).then(response => {
           const data = response.data
           if (data.returnCode !== '0000') {
             resolve(data)
@@ -90,7 +90,7 @@ const user = {
       commit
     }, userInfo) {
       return new Promise((resolve, reject) => {
-        registerByUsername(userInfo.mobile, userInfo.password, userInfo.code, userInfo.qq, userInfo.wechat).then(response => {
+        registerByUsername(userInfo).then(response => {
           const data = response.data
           if (data.returnCode !== '0000') {
             resolve(data)
@@ -109,17 +109,16 @@ const user = {
 
     // 获取用户信息
     GetUserInfo({
-      commit,
-      state
+      commit
     }) {
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(response => {
+        getUserInfo().then(response => {
           const data = response.data.data
           commit('SET_NAME', data.mobile)
           commit('SET_WEALTH', data.wealth)
           commit('SET_QQ', data.qq)
           commit('SET_WECHAT', data.wechat)
-          commit('SET_USRID', data.usrid)
+          commit('SET_ID', data.id)
           resolve()
         }).catch(error => {
           console.log(error)
@@ -128,17 +127,16 @@ const user = {
       })
     },
     UpdateInfo({
-      commit,
-      state
-    }, data) {
+      commit
+    }, updateData) {
       return new Promise((resolve, reject) => {
-        updateInfo(data.qq, data.wechat, state.token).then((res) => {
+        updateInfo(updateData).then((res) => {
           const data = res.data
           if (data.returnCode !== '0000') {
             resolve(data)
           } else {
-            commit('SET_QQ', updateInfo.qq)
-            commit('SET_WECHAT', updateInfo.wechat)
+            commit('SET_WEALTH', updateData.wealth)
+            commit('SET_QQ', updateData.qq)
             resolve(data)
           }
         }).catch(error => {
