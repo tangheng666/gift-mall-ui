@@ -2,55 +2,32 @@
   <div class="showContent">
     <left-router />
     <div class="right">
-      <div data-v-be4ab2a0="" class="accountMoney">
+      <div class="accountMoney">
         <h2>
           <strong>资金流水</strong>
-          <span>账户充值</span>
+          <!-- <span>账户充值</span> -->
         </h2>
         <h6><span>当前账户：</span> <strong>18823274880</strong></h6>
         <h6><span>账户余额：</span> <b>￥ {{ wealth }}</b></h6>
         <div>
           <div class="accountDetail">
             <div class="filter">
-              <DatePicker type="datetimerange" placement="bottom-start" placeholder="请选择资金变动时间段" style="width: 300px" @on-change="editDate" />
+              <DatePicker v-model="startTimeNoF" type="datetime" format="yyyy-MM-dd mm:hh:ss" clearable placeholder="选择开始时间" style="width: 200px" @on-change="startTimeChange" />
+              <span>&nbsp;&nbsp;至&nbsp;&nbsp;</span>
+              <DatePicker v-model="endTimeNoF" type="datetime" format="yyyy-MM-dd mm:hh:ss" clearable placeholder="选择结束时间" style="width: 200px" @on-change="endTimeChange" />
+
               <b class="button-w" @click="getFundsDetail">查询</b>
             </div>
 
             <div v-if="recordList.length===0" class="noCont">
-              <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="">
+              <img src="/static/notData.png" alt="">
               <p>暂无数据</p>
             </div>
             <div v-else class="detailList">
-              <ul>
-                <li>
-                  <strong>
-                    关联订单编号
-                  </strong>
-                  <strong>
-                    交易类型
-                  </strong>
-                  <strong>
-                    交易费用
-                  </strong>
-                  <strong>
-                    交易时间
-                  </strong>
-                </li>
-                <li v-for="detail of recordList" :key="detail.id">
-                  <span>
-                    {{ detail.id }}
-                  </span>
-                  <span>
-                    {{ detail.feeType }}
-                  </span>
-                  <span>
-                    {{ detail.fee }}
-                  </span>
-                  <span>
-                    {{ detail.dateCreated }}
-                  </span>
-                </li>
-              </ul>
+              <Table :data="recordList" :columns="tableColumns" :border="false" size="large" stripe />
+              <div class="pager">
+                <Page v-if="total >0 " :current="searchForm.page" :page-size-opts="[5, 10, 20, 40]" :page-size="searchForm.limit" :total="total" show-total show-sizer @on-page-size-change="changePageSize" @on-change="changePage" />
+              </div>
             </div>
 
           </div>
@@ -87,14 +64,67 @@ export default {
           value: '商家退款'
         }
       ],
+      tableColumns: [
+        {
+          type: 'index',
+          width: 60,
+          align: 'center'
+        },
+        {
+          title: '详细订单编号',
+          key: 'id',
+          align: 'center'
+          // width: 150
+        },
+        {
+          title: '交易类型',
+          key: 'feeType',
+          align: 'center',
+          // width: 250,
+          render: (h, params) => {
+            const row = params.row
+            const text =
+              row.feeType === 'CHARGE'
+                ? '用户充值'
+                : row.feeType === 'PAY'
+                  ? '订单支付'
+                  : '退款'
+
+            return h(
+              'span',
+              {
+                attrs: {
+                  style: 'font-size: 16px;font-weight: 400'
+                }
+              },
+              text
+            )
+          }
+        },
+        {
+          title: '交易金额',
+          key: 'fee',
+          align: 'center'
+          // width: 200
+        },
+        {
+          title: '交易时间',
+          key: 'dateCreated',
+          align: 'center'
+          // width: 200
+        }
+      ],
       searchForm: {
         page: 1,
-        limit: 10,
+        limit: 5,
         startTime: '',
         endTime: ''
       },
+      startTimeNoF: null,
+      endTimeNoF: null,
       recordList: [],
-      dateTime: []
+      dateTime: [],
+      total: 0
     }
   },
   computed: {
@@ -105,14 +135,11 @@ export default {
   },
   methods: {
     getFundsDetail() {
-      console.log(this.dateTime)
-      if (this.dateTime.length > 0) {
-        console.log(this.dateTime[0])
-      }
       getFundsDetail(this.searchForm).then(response => {
         const resData = response.data
         if (statusCode.OK === resData.returnCode) {
           this.recordList = resData.data
+          this.total = resData.total
         } else {
           this.$Message.info(resData.returnMessage)
         }
@@ -121,8 +148,20 @@ export default {
     editDate(date, type) {
       this.searchForm.startTime = date[0]
       this.searchForm.endTime = date[1]
-      console.log('第一个值：' + date + ' 类型：' + date[0])
-      console.log('第二个值： ' + date)
+    },
+    startTimeChange(v) {
+      this.searchForm.startTime = v
+    },
+    endTimeChange(v) {
+      this.searchForm.endTime = v
+    },
+    changePage(v) {
+      this.searchForm.page = v
+      this.getFundsDetail()
+    },
+    changePageSize(v) {
+      this.searchForm.limit = v
+      this.getFundsDetail()
     }
   }
 }
@@ -188,37 +227,7 @@ export default {
     margin-top: 24px;
   }
   .detailList {
-    margin-top: 20px;
-    padding: 20px;
-    ul {
-      width: 100%;
-      font-size: 16px;
-
-      border: 1px solid darkgrey;
-      li {
-        display: flex;
-        justify-content: space-between;
-        border: 1px #dedede;
-        font-size: 16px;
-        color: #303133;
-        line-height: 22px;
-        // padding: 14px;
-        text-align: center;
-        border-bottom: 1px solid darkgrey;
-
-        strong {
-          font-weight: 400;
-          flex: 1;
-          padding: 12px;
-          background-color: #f8f8f9;
-        }
-        span {
-          flex: 1;
-          padding: 10px;
-          // border: 1px solid #979797;
-        }
-      }
-    }
+    margin-top: 30px;
   }
 }
 </style>

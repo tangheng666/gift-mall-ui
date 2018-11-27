@@ -32,3 +32,10 @@ export function updateInfo(userInfo) {
     data: userInfo
   })
 }
+
+export function updatePassword(param) {
+  return request({
+    url: '/updatePassword',
+    data: param
+  })
+}

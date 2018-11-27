@@ -3,7 +3,7 @@
     <div class="newLogBase">
       <div class="contBox">
         <div class="leftBox">
-          <h2>欢迎来到求新品</h2>
+          <h2>欢迎来到幸运包</h2>
           <h3>我们提供赠品采购、发货、一站式服务。</h3>
           <div class="line"><span class="active" /><span class="" /></div>
           <div class="box">
@@ -19,8 +19,12 @@
               <span />
               <!-- <span>忘记密码？</span> -->
             </div>
-            <div class="footer"><b class="login" @click="handleLogin">登录</b>
+            <div class="footer">
+              <b class="login" @click="handleLogin">登录</b>
               <b class="toReg" @click="goReg">去注册</b>
+            </div>
+            <div class="footerTwo">
+              <Button icon="ios-home" size="large" @click="goHome"> 回到首页</Button>
             </div>
           </div>
         </div>
@@ -56,6 +60,9 @@ export default {
   methods: {
     goReg() {
       this.$router.push({ name: 'register' })
+    },
+    goHome() {
+      this.$router.push({ name: 'index' })
     },
     handleLogin() {
       Message.destroy()
@@ -168,6 +175,9 @@ export default {
   margin-right: 50px;
   border-radius: 10px;
   cursor: pointer;
+}
+.login .box .footerTwo {
+  margin-top: 50px;
 }
 .login .box .footer .login {
   background: #f16591;

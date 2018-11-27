@@ -10,7 +10,7 @@ export function fetchOrder(data) {
 export function createOrder(data) {
   return request({
     url: '/createOrder',
-    data
+    data: data
   })
 }
 

@@ -13,7 +13,7 @@
         <div v-else class="right loged">
           <Icon type="md-notifications-outline" size="16" class="cursor" @click="goNoticeList" />
           <span>账户余额：<span>{{ wealth }}元</span>
-          </span> <em class="button-tip rechargeBtn">充值</em>
+          </span> <em class="button-tip rechargeBtn" @click="goRecharge">充值</em>
           <strong class="cursor userInfo" @mouseover="yiRuUserInfo" @mouseout="yiChuUserInfo">Hi~{{ name }}
             <Icon type="ios-arrow-down" size="20" />
           </strong>
@@ -21,20 +21,27 @@
             <li class="head"><img src="http://182.61.16.69:8080/images/e27274b4-5ba5-4074-b495-e6edb7d34508.jpg" alt="用户头像"></li>
             <li class="userInfo">Hi~{{ name }}</li>
             <li class="level">
-              <Icon type="ios-star" color="#FFB10F" style="padding-left:10px;padding-top:1px;"/>
+              <Icon type="ios-star" color="#FFB10F" style="padding-left:10px;padding-top:1px;" />
               <span>注册用户</span>
               <span>首重3.5元起</span>
             </li>
             <li class="balance"><span>账户余额</span> <strong>￥{{ wealth }}</strong></li>
-            <li class="recharge"><span class="cursor" @click="openLogisticListModel">物流成本</span> <span class="cursor" @click="goMoneyRecord">资金明细</span></li>
-            <li class="changeQQ"><span class="cursor" @click="openUpdateModel">修改QQ/微信</span></li>
+            <li class="recharge">
+              <span class="cursor" @click="openLogisticListModel">物流成本</span>
+              <span class="cursor" @click="goMoneyRecord">资金明细</span>
+            </li>
+            <li class="changeQQ">
+              <span class="cursor" @click="openUpdateModel">修改QQ/微信</span>
+              <span class="cursor" @click="openUpdatePwdModel">修改密码</span>
+
+            </li>
             <li class="exit cursor" @click="logout()">退出</li>
           </ul>
         </div>
       </div>
       <div class="alert">
         <Modal v-model="updateModel" :styles="modelStyle" title="修改QQ和微信">
-          <Form ref="formValidate" :model="updateData" :rules="ruleValidate" :label-width="80" class="updateFrom">
+          <Form ref="formValidate" :model="updateData" :rules="updateInfoValidRules" :label-width="80" class="updateFrom">
             <FormItem label="QQ" prop="qq">
               <i-input v-model="updateData.qq" placeholder="请输入QQ账号" style="width: 300px" />
             </FormItem>
@@ -44,6 +51,25 @@
             <FormItem>
               <Button type="primary" @click="handleSubmit">保存</Button>
               <Button style="margin-left: 8px" @click="handleCancel">取消</Button>
+            </FormItem>
+          </Form>
+          <div slot="footer" />
+        </Modal>
+        <Modal v-model="updatePwdModel" :styles="modelStyle" title="修改密码">
+          <Form ref="updatePwdformValidate" :model="updatePwdForm" :rules="updatePwdValidRules" :label-width="85" class="updateFrom">
+            <FormItem label="旧密码" prop="oldPassword">
+              <i-input v-model="updatePwdForm.oldPassword" type="password" placeholder="请输入旧密码" style="width: 300px" />
+            </FormItem>
+            <FormItem label="新密码" prop="newPassword">
+              <i-input v-model="updatePwdForm.newPassword" type="password" placeholder="请输入新密码" style="width: 300px" />
+            </FormItem>
+            <FormItem label="确认新密码" prop="confirmPwd">
+              <i-input v-model="updatePwdForm.confirmPwd" type="password" placeholder="请输入确认新密码" style="width: 300px" />
+            </FormItem>
+
+            <FormItem>
+              <Button type="primary" @click="updatePwdSbumit">保存</Button>
+              <Button style="margin-left: 8px" @click="updatePwdCancel">取消</Button>
             </FormItem>
           </Form>
           <div slot="footer" />
@@ -94,6 +120,14 @@ import { Message } from 'iview'
 export default {
   components: {},
   data() {
+    const valiConfirmPwd = (rule, value, callback) => {
+      if (value !== this.updatePwdForm.newPassword) {
+        callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
+
     return {
       show: false,
       updateModel: false,
@@ -101,14 +135,49 @@ export default {
         qq: this.$store.getters.qq,
         wechat: this.$store.getters.wechat
       },
-      ruleValidate: {
+      updatePwdForm: {
+        oldPassword: '',
+        newPassword: '',
+        confirmPwd: ''
+      },
+      updateInfoValidRules: {
         qq: [{ required: true, message: 'QQ号码不能为空' }],
         wechat: [{ required: true, message: '微信不能为空' }]
       },
+      updatePwdValidRules: {
+        oldPassword: [
+          { required: true, message: '请输入旧密码', trigger: 'blur' }
+        ],
+        newPassword: [
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          {
+            type: 'string',
+            min: 6,
+            message: '密码至少为6位字符',
+            trigger: 'blur'
+          },
+          {
+            type: 'string',
+            max: 20,
+            message: '密码最多为20位字符',
+            trigger: 'blur'
+          }
+        ],
+        confirmPwd: [
+          { required: true, message: '请确认确定密码', trigger: 'blur' },
+          {
+            validator: valiConfirmPwd,
+            message: '两次输入的密码不一致',
+            trigger: 'blur'
+          }
+        ]
+      },
+
       modelStyle: {
         'margin-top': '50px'
       },
-      logisticListModel: false
+      logisticListModel: false,
+      updatePwdModel: false
     }
   },
   computed: {
@@ -117,8 +186,7 @@ export default {
       return this.$route.path
     }
   },
-  created() {
-  },
+  created() {},
   methods: {
     logout() {
       this.$store.dispatch('LogOut').then(() => {
@@ -140,6 +208,9 @@ export default {
     goMoneyRecord() {
       this.$router.push('/control/fundsDetail')
     },
+    goRecharge() {
+      this.$router.push('/control/recharge')
+    },
     showInfo() {
       this.show = !this.show
     },
@@ -154,7 +225,7 @@ export default {
             .dispatch('UpdateInfo', this.updateData)
             .then(res => {
               if (res.returnCode === '0000') {
-                Message.success('修改成功 !')
+                Message.success('修改成功')
                 this.updateModel = false
               } else {
                 Message.info(res.returnMessage)
@@ -167,6 +238,38 @@ export default {
           Message.error('请输入必填参数 !')
         }
       })
+    },
+    openUpdatePwdModel() {
+      this.updatePwdModel = true
+    },
+    updatePwdSbumit() {
+      // 修改密码
+
+      Message.destroy()
+      this.$refs.updatePwdformValidate.validate(valid => {
+        if (valid) {
+          this.$store
+            .dispatch('updatePwd', this.updatePwdForm)
+            .then(res => {
+              if (res.returnCode === '0000') {
+                Message.success('修改成功')
+                this.updatePwdModel = false
+                this.$store.dispatch('LogOut').then(() => {
+                  location.reload()
+                })
+              } else {
+                Message.info(res.returnMessage)
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        }
+      })
+    },
+    updatePwdCancel() {
+      this.$refs.updatePwdformValidate.resetFields()
+      this.updatePwdModel = false
     },
     handleCancel() {
       this.$refs.formValidate.resetFields()
@@ -372,6 +475,15 @@ export default {
   justify-content: space-between;
 }
 .userTitle .titleWrap .loged .infoBox .changeQQ span {
+  font-size: 14px;
+  line-height: 38px;
+  color: #d01126;
+}
+.userTitle .titleWrap .loged .infoBox .changePwd {
+  display: flex;
+  justify-content: space-between;
+}
+.userTitle .titleWrap .loged .infoBox .changePwd span {
   font-size: 14px;
   line-height: 38px;
   color: #d01126;

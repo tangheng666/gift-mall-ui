@@ -14,7 +14,7 @@
     <left-router />
     <div class="right">
       <div class="checkNow">
-        <div class="topNav">
+        <!-- <div class="topNav">
           <div class="hBox">
             <div class="stepBoxWrap">
               <ul class="stepBox">
@@ -32,68 +32,118 @@
               <span>确认收货人信息步骤示例</span>
             </div>
           </div>
-        </div>
+        </div> -->
         <!---->
         <div class="takeOrderBox">
           <div class="uploadTable">
             <ul class="topTabs">
               <!-- <li class="">智能筛选收货人</li>
                   <li class="">批量上传收货人</li> -->
-              <li class="active">手工填写</li>
+              <li class="active">录入收货人信息进行下单</li>
             </ul>
             <div class="contents">
               <div class="handleBase">
+                <!-- <h4>手工填写信息下单</h4> -->
+                <!-- <Upload :before-upload="handleUpload" type="drag" action="//jsonplaceholder.typicode.com/posts/">
+                      <div style="padding: 20px 0">
+                        <Icon type="ios-cloud-upload" size="52" style="color: #3399ff" />
+                        <p>Click or drag files here to upload</p>
+                      </div>
+                    </Upload> -->
                 <div class="handBox">
-                  <h4>手工填写信息下单</h4>
-                  <ul class="select">
+                  <!-- <ul class="select">
                     <li><span>选择平台</span>
-                      <!---->
                       <Select v-model="select" style="width:140px; margin-left: 20px;" transfer>
                         <Option v-for="item in selectAll" :value="item.key" :key="item.key">{{ item.value }}</Option>
                       </Select>
                       <b v-if="Object.keys(myGoods).length===0" class="button-n" @click="openGiftModel">选择礼品</b>
                     </li>
-
-                  </ul>
+                  </ul> -->
                   <ul class="tips">
-                    <li> 按照如下格式填写：李四，13820808579，湖南省 永州市 宁远县 禾亭镇富村13组 </li>
-                    <li> 直辖市地址模板示例：李四，13820808579，天津 天津市 西青区 解放南路二十四巷11号</li>
-                    <li> 收件人名字、手机号、地址间用逗号隔开 </li>
+                    <li> 操作流程：选择礼品---》 文件录入或手动录入---》 检查收货地址是否正确---》 输入备注---》 提交支付</li>
+                    <li> 收货人信息模板示例1：李四，13820808579，天津 天津市 西青区 解放南路二十四巷11号</li>
+                    <li> 收货人信息模板示例2：王五，13820808579，广东省 佛山市 顺德区 解放南路二十四巷11号</li>
+                    <li> 录入说明：选择文件录入时，请确保选择平台和文件所属平台一致，以防解析结果出现异常</li>
+                    <li> 发货说明：西藏、新疆不发货</li>
+                    <!-- <li> 收件人名字、手机号、地址间用逗号隔开 </li>
                     <li> 地址省市区详细地址用一个空格分隔，如无区县信息则默认填写其他区 </li>
-                    <li> 请确认输入的信息与选中的平台保持一致 </li>
+                    <li> 请确认输入的信息与选中的平台保持一致 </li> -->
                   </ul>
-                  <div>
-                    <Upload :before-upload="handleUpload" type="drag" action="//jsonplaceholder.typicode.com/posts/">
-                      <div style="padding: 20px 0">
-                        <Icon type="ios-cloud-upload" size="52" style="color: #3399ff" />
-                        <p>Click or drag files here to upload</p>
-                      </div>
-                    </Upload>
+                  <div class="giftButtonDiv">
+                    <!-- <b v-if="Object.keys(myGoods).length===0" class="giftButton" @click="openGiftModel">选择礼品</b> -->
+                    <b class="giftButton" @click="openFileUpload">上传文件录入</b>
+                    <b class="giftButton" @click="openAddress">手动录入</b>
+
                   </div>
-                  <div v-if="Object.keys(myGoods).length>0" class="packageList">
+                  <div />
+                  <div class="packageList">
                     <div class="checkArea">
                       <div class="left"><span>已选择礼品</span></div>
                       <div class="righta">
                         <div class="tableShopCar">
-                          <div class="type1">
-                            <div class="top">
-                              <div class="left" />
-                              <div class="rightBtn"> <b class="button-n" @click="openGiftModel">重新选择礼品</b></div>
+                          <div class="top">
+                            <div class="rightBtn" />
+                            <div class="left" />
+                            <div class="rightBtn">
+                              <b v-if="Object.keys(myGoods).length>0" class="button-n" @click="openGiftModel">重新选择礼品</b>
+                              <b v-if="Object.keys(myGoods).length===0" class="button-n" @click="openGiftModel">选择礼品</b>
                             </div>
-                            <div v-if="Object.keys(myGoods).length>0" class="goods">
-                              <div class="item">
-                                <img :src="myGoods.photo" alt="goodsImg">
-                                <span>{{ myGoods.summary }} </span>
-                                <span>{{ myGoods.weight }}kg</span>
-                                <span>{{ myGoods.price }}元/件</span>
-                                <span>1件</span>
-                              </div>
+
+                          </div>
+                          <div v-if="Object.keys(myGoods).length>0" class="goods">
+                            <div class="item">
+                              <img :src="myGoods.photo" alt="goodsImg">
+                              <span>{{ myGoods.summary }} </span>
+                              <span>{{ myGoods.weight }}kg</span>
+                              <span>{{ myGoods.price }}元/件</span>
+                              <span>1件</span>
                             </div>
+                          </div>
+                          <div v-else class="noData">
+                            <!-- <img src="/static/notData.png" alt="暂无数据"> -->
+                            <p>暂无数据</p>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div v-if="Object.keys(myGoods).length>0" class="topInput">
+                    <div class="metableDiv">
+                      <Alert v-if="realAddressData.length>0" :type="alertType" closable show-icon>{{alertText}}</Alert>
+                      <table id="newspaper-a" v-if="realAddressData.length > 0">
+                        <thead>
+                          <tr>
+                            <th scope="col" width="220px">第三方订单编号</th>
+                            <th scope="col" width="340px">收货信息</th>
+                            <th scope="col">校验结果</th>
+                            <th scope="col">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                          <tr v-for="(realItem,index) of realAddressData" :key="index">
+                            <td>{{realItem.orderNo}}</td>
+                            <td><span :style="realItem.errors.has('data')?'color: red;':''"> {{realItem.data}}</span> </td>
+                            <td>
+                              <span v-if="realItem.isVerified" style="color:#1be46b;">数据正确</span>
+                              <span v-else style="color:red;">{{ realItem.errors.has('data')
+                                ? realItem.errors.get('data')
+                                : realItem.errors.get('orderNo')}}</span>
+                            </td>
+                            <td>
+                              <ButtonGroup>
+                                <Button type="info" @click="updateItem(realItem,index)" v-if="!realItem.isVerified" style="margin-right:5px;">修改</Button>
+                                <Button type="error" @click="removeData(realItem,index)">删除</Button>
+                              </ButtonGroup>
+                            </td>
+                          </tr>
+
+                        </tbody>
+                      </table>
+
+                      <!-- <Table :columns="columns" :data="realAddressData" size="large" /> -->
+
+                    </div>
+
+                    <!-- <div v-if="Object.keys(myGoods).length>0" class="topInput">
                       <div v-for="(info,index) of infoList" :key="index" class="itemInv">
                         <i-input v-model="info.orderNo" placeholder="请输入订单号" style="width: 200px" class="orders" />
                         <i-input v-model="info.data" placeholder="请输入收件信息" class="address" />
@@ -101,12 +151,12 @@
                         <b v-else class="button-n btnSuccess" @click="define(info)">确定</b>
                       </div>
 
-                    </div>
-                    <div v-if="isOpenNext" class="addOthers">
+                    </div> -->
+                    <!-- <div v-if="isOpenNext" class="addOthers">
                       <b class="button-w add" @click="addInfo">
                         <Icon type="md-add" />添加新的收货信息
                       </b>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
                 <div class="payBox">
@@ -178,6 +228,68 @@
         </ul>
       </div>
     </Modal>
+    <Modal v-model="addressModel" :width="500" :footer-hide=" true" :draggable="true" :mask-closable="false" title="手动录入收货信息">
+      <Form ref="addressformValidate" :model="addressObj" :rules="addressValidRules" :label-width="85" class="updateFrom">
+        <FormItem label="订单编号" prop="orderNo">
+          <i-input v-model="addressObj.orderNo" type="text" placeholder="请输入订单编号" style="width: 300px" />
+        </FormItem>
+        <FormItem label="收货信息" prop="data">
+          <i-input v-model="addressObj.data" type="text" placeholder="请输入收货信息" style="width: 350px" />
+        </FormItem>
+
+        <FormItem>
+          <Button type="primary" @click="saveAddress">提交</Button>
+          <Button style="margin-left: 8px" @click="cancelAddress">关闭</Button>
+        </FormItem>
+      </Form>
+      <div slot="footer" />
+    </Modal>
+    <Modal v-model="addressUpdateModel" :width="500" :footer-hide=" true" :draggable="true" :mask-closable="false" title="修改收货信息">
+      <Form ref="updateAddressformValidate" :model="updateAddressObj" :rules="addressValidRules" :label-width="85" class="updateFrom">
+        <FormItem label="订单编号" prop="orderNo">
+          <i-input v-model="updateAddressObj.orderNo" type="text" placeholder="请输入订单编号" style="width: 300px" />
+        </FormItem>
+        <FormItem label="收货信息" prop="data">
+          <i-input v-model="updateAddressObj.data" type="text" placeholder="请确认收货信息" style="width: 350px" />
+        </FormItem>
+
+        <FormItem>
+          <Button type="primary" @click="saveUpdateAddress">保存</Button>
+          <Button style="margin-left: 8px" @click="cancelUpdateAddress">关闭</Button>
+        </FormItem>
+      </Form>
+      <div slot="footer" />
+    </Modal>
+
+    <Modal v-model="fileUploadModel" :width="500" :footer-hide=" true" :mask-closable="false" :closable="modelClosable" title="上传收货信息文件">
+      <div class="fileModelhead">
+        <div class="selectHead">
+          <ul class="select">
+            <li><span>选择平台：</span>
+              <Select v-model="select" style="width:140px; margin-left: 20px;" transfer>
+                <Option v-for="item in selectAll" :value="item.key" :key="item.key">{{ item.value }}</Option>
+              </Select>
+            </li>
+          </ul>
+        </div>
+        <div class="uploadCore">
+          <Upload :before-upload="handleUpload" type="drag" action="//jsonplaceholder.typicode.com/posts/" class="uploadCom">
+            <div style="padding: 20px 0">
+              <Icon type="ios-cloud-upload" size="52" style="color: #3399ff" />
+              <p>单击或拖动文件以上传</p>
+            </div>
+          </Upload>
+
+        </div>
+        <div v-if="file !== null" class="footer">
+          <div class="fileName"> <span> 上传文件名: {{ file.name }}</span></div>
+          <Button :loading="loadingStatus" size="large" @click="upload">{{ loadingStatus ? '上传中' : '确定上传' }}</Button>
+        </div>
+      </div>
+
+      <div slot="footer" />
+    </Modal>
+
   </div>
 </template>
 
@@ -185,11 +297,9 @@
 import { leftRouter } from './components'
 import { goodsList } from '@/api/goods'
 import { createOrder } from '@/api/order'
-import { expressFee } from '@/api/common'
 import { toDecimal, whetherToday } from '@/utils/index'
 import statusCode from '@/common/statusCode'
 import numeral from 'numeral'
-import Papa from 'papaparse'
 
 export default {
   name: 'Buy',
@@ -197,30 +307,30 @@ export default {
     leftRouter
   },
   data() {
+    const isValid = /^[\u4e00-\u9fa5A-Za-z0-9\s\S]+(,|，)\d{11}(，|,)[\u4e00-\u9fa5]+ [\u4e00-\u9fa5]+ [\u4e00-\u9fa5|null]+ [\s\S―]*$/
+    const valiAddress = (rule, value, callback) => {
+      if (!isValid.test(value)) {
+        callback(new Error('收货人信息格式不正确'))
+      } else {
+        callback()
+      }
+    }
     return {
       selectAll: [
         {
-          key: 'tb',
+          key: 'taobao',
           value: '淘宝'
         },
         {
-          key: 'tm',
-          value: '天猫'
-        },
-        {
-          key: 'pdd',
+          key: 'pindd',
           value: '拼多多'
         },
         {
           key: 'jd',
           value: '京东'
-        },
-        {
-          key: 'qt',
-          value: '其他'
         }
       ],
-      select: 'tb',
+      select: 'taobao',
       purchaseList: [],
       singlePurchase: {
         expressNo: '',
@@ -230,24 +340,96 @@ export default {
       myGoods: {},
       giftModel: false,
       data: [],
+      realAddressData: [],
       columns: [
         {
-          title: 'Date',
-          key: 'date',
-          sortable: true
+          title: '第三方订单编号',
+          key: 'orderNo',
+          width: 200,
+          align: 'center'
         },
         {
-          title: 'Name',
-          key: 'name'
+          title: '收货地址信息',
+          key: 'data',
+          align: 'center',
+          render: (h, params) => {
+            const rowData = params.row
+            return h(
+              'span',
+              {
+                attrs: {
+                  style: rowData.errors.has('data') ? 'color: red;' : ''
+                }
+              },
+              rowData.data
+            )
+          }
         },
         {
-          title: 'Age',
-          key: 'age',
-          sortable: true
+          title: '校验结果',
+          key: 'isVerified',
+          align: 'center',
+          width: 140,
+          render: (h, params) => {
+            const rowData = params.row
+            if (rowData.isVerified) {
+              return h(
+                'span',
+                { attrs: { style: 'color: #1be46b;' } },
+                '数据正确'
+              )
+            } else {
+              return h(
+                'span',
+                { attrs: { style: 'color: red;' } },
+                rowData.errors.has('data')
+                  ? rowData.errors.get('data')
+                  : rowData.errors.get('orderNo')
+              )
+            }
+          }
         },
         {
-          title: 'Address',
-          key: 'address'
+          title: '操作',
+          key: 'action',
+          width: 120,
+          render: (h, params) => {
+            const rowData = params.row
+            const editItem = h(
+              'Button',
+              {
+                props: {
+                  type: 'text',
+                  size: 'small'
+                },
+                on: {
+                  click: () => {
+                    this.updateItem(params.row)
+                  }
+                }
+              },
+              '修改'
+            )
+            const delItem = h(
+              'Button',
+              {
+                props: {
+                  type: 'text',
+                  size: 'small'
+                },
+                on: {
+                  click: () => {
+                    this.removeData(params.row)
+                  }
+                }
+              },
+              '删除'
+            )
+            return h(
+              'div',
+              rowData.isVerified ? [delItem] : [editItem, delItem]
+            )
+          }
         }
       ],
       listQuery: {
@@ -264,24 +446,127 @@ export default {
         }
       ],
       isOpenNext: false,
-      submitData: [],
-      wuLiu: {},
       endSubmitData: {
-        gid: 0,
-        data: '',
+        data: [],
         totalNote: ''
       },
+      addressObj: {
+        orderNo: '',
+        data: ''
+      },
+      updateAddressObj: {
+        itemIndex: 0,
+        orderNo: '',
+        data: ''
+      },
+      addressUpdateModel: false,
       loading: true,
-      file: null
+      addressModel: false,
+      addressValidRules: {
+        orderNo: [
+          { required: true, message: '请输入第三方订单编号', trigger: 'blur' }
+        ],
+        data: [
+          { required: true, message: '请输入收货信息', trigger: 'blur' },
+          {
+            validator: valiAddress,
+            message: '收货信息格式不正确',
+            trigger: 'blur'
+          }
+        ]
+      },
+      fileUploadModel: false,
+      loadingStatus: false,
+      file: null,
+      alertType: 'success',
+      alertText: '',
+      modelClosable: true,
+      removeLocaing: false
     }
   },
-  created() {
-    this.init()
+  created() {},
+  mounted() {
+    this.$Notice.config({
+      top: 52,
+      duration: 3
+    })
   },
   methods: {
-    init() {
-      expressFee().then(response => {
-        this.wuLiu = response.data.data
+    openFileUpload() {
+      this.$Notice.destroy()
+      if (Object.keys(this.myGoods).length === 0) {
+        this.$Notice.info({
+          title: '温馨提示',
+          desc: '请先选择好礼品再进行操作 '
+        })
+      } else {
+        this.fileUploadModel = true
+      }
+    },
+    openAddress() {
+      this.$Notice.destroy()
+      if (Object.keys(this.myGoods).length === 0) {
+        this.$Notice.info({
+          title: '温馨提示',
+          desc: '请先选择好礼品再进行操作 '
+        })
+      } else {
+        this.addressModel = true
+      }
+    },
+    cancelAddress() {
+      this.addressObj.data = ''
+      this.addressObj.orderNo = ''
+      this.$refs.addressformValidate.resetFields()
+      this.addressModel = false
+    },
+    saveAddress() {
+      this.$refs.addressformValidate.validate(valid => {
+        if (valid) {
+          this.addressDataFilter(this.addressObj)
+          this.addressObj.data = ''
+          this.addressObj.orderNo = ''
+          this.$Message.success('录入成功')
+        }
+      })
+    },
+    cancelUpdateAddress() {
+      this.updateAddressObj.data = ''
+      this.updateAddressObj.orderNo = ''
+      this.updateAddressObj.itemIndex = 0
+      this.$refs.updateAddressformValidate.resetFields()
+      this.addressUpdateModel = false
+    },
+    saveUpdateAddress() {
+      this.$Notice.destroy()
+      this.$refs.updateAddressformValidate.validate(valid => {
+        if (valid) {
+          this.realAddressData[
+            this.updateAddressObj.itemIndex
+          ].data = this.updateAddressObj.data
+          this.realAddressData[
+            this.updateAddressObj.itemIndex
+          ].orderNo = this.updateAddressObj.orderNo
+
+          this.realAddressData[
+            this.updateAddressObj.itemIndex
+          ].isVerified = true
+          this.realAddressData[
+            this.updateAddressObj.itemIndex
+          ].errors = new Map()
+          // this.addressDataFilter(this.addressObj)
+          this.totalPriceFunction()
+          this.sortRealAddressList()
+          this.updateAddressObj.data = ''
+          this.updateAddressObj.orderNo = ''
+          this.updateAddressObj.itemIndex = 0
+          this.addressUpdateModel = false
+          this.$Notice.success({
+            title: '温馨提示',
+            desc: '修改成功 '
+          })
+
+        }
       })
     },
     openGiftModel() {
@@ -296,47 +581,67 @@ export default {
       this.giftModel = false
       this.totalPriceFunction()
     },
-    addInfo() {
-      const item = {
-        orderNo: '',
-        data: '',
-        isVerified: false
-      }
-      this.isOpenNext = false
-      this.infoList.push(item)
+    // addInfo() {
+    //   const item = {
+    //     orderNo: '',
+    //     data: '',
+    //     isVerified: false
+    //   }
+    //   this.isOpenNext = false
+    //   this.infoList.push(item)
+    // },
+    updateItem(item, index) {
+      this.updateAddressObj.itemIndex = index
+      this.updateAddressObj.orderNo = item.orderNo
+      this.updateAddressObj.data = item.data
+      this.addressUpdateModel = true
+      // this.realAddressData.push(item)
     },
-    inputBlur(info) {
-      if (!info.isVerified) {
-        return
-      }
-      info.isVerified = false
-      this.totalPriceFunction()
+    removeData(item, index) {
+      this.$Modal.confirm({
+        className: 'vertical-center-modal',
+        title: '温馨提示',
+        content: '确定要删除该条收货信息吗？',
+        loading: true,
+        onOk: () => {
+          this.realAddressData.splice(index, 1)
+          this.totalPriceFunction()
+          this.sortRealAddressList()
+          setTimeout(() => {
+            this.$Modal.remove()
+          }, 500)
+        },
+        onCancel: () => {}
+      })
     },
-    define(info) {
-      this.$Message.destroy()
-      if (info.orderNo.trim() === '') {
-        this.$Message.info('请输入订单号')
-        return
-      }
-      if (info.data.trim() === '') {
-        this.$Message.info('请输入收件信息')
-        return
-      }
-      // if (this.myGoods.weight <= 0.0) {
-      //   this.$Message.info('礼品重量信息有误')
-      //   return
-      // }
-      const isValid = /^[\u4e00-\u9fa5A-Za-z0-9]+(,|，)\d{11}(，|,)[\u4e00-\u9fa5A-Za-z0-9 ]+$/
-      if (!isValid.test(info.data)) {
-        this.$Message.info('收件信息输入不完整')
-        return
-      }
-      info.isVerified = true
-      this.isOpenNext = true
-      this.totalPriceFunction()
-    },
+    // inputBlur(info) {
+    //   if (!info.isVerified) {
+    //     return
+    //   }
+    //   info.isVerified = false
+    //   this.totalPriceFunction()
+    // },
+    // define(info) {
+    //   this.$Message.destroy()
+    //   if (info.orderNo.trim() === '') {
+    //     this.$Message.info('请输入订单号')
+    //     return
+    //   }
+    //   if (info.data.trim() === '') {
+    //     this.$Message.info('请输入收件信息')
+    //     return
+    //   }
+    //   const isValid = /^[\u4e00-\u9fa5A-Za-z0-9]+(,|，)\d{11}(，|,)[\u4e00-\u9fa5A-Za-z0-9 ]+$/
+    //   if (!isValid.test(info.data)) {
+    //     this.$Message.info('收件信息输入不完整')
+    //     return
+    //   }
+    //   info.isVerified = true
+    //   this.isOpenNext = true
+    //   this.totalPriceFunction()
+    // },
     totalPriceFunction() {
-      const newArray = this.infoList.filter(item => {
+      const newArray = this.realAddressData.filter(item => {
         return item.isVerified
       })
       this.totalPrice = 0.0
@@ -346,42 +651,60 @@ export default {
       }
       this.formatTotalPrice(this.totalPrice)
     },
-    remove(index) {
-      // this.totalPrice -= toDecimal(wuLiuPrice + this.myGoods.price)
-      this.infoList.splice(index, 1)
-      this.totalPriceFunction()
-    },
+    // remove(index) {
+    //   // this.totalPrice -= toDecimal(wuLiuPrice + this.myGoods.price)
+    //   this.infoList.splice(index, 1)
+    //   this.totalPriceFunction()
+    // },
     createdAndPayOrder() {
-      this.$Message.destroy()
+      this.$Notice.destroy()
       if (Object.keys(this.myGoods).length === 0) {
-        this.$Message.info('请选择要采购的礼品')
+        this.$Notice.info({
+          title: '温馨提示',
+          desc: '请选择要采购的礼品 '
+        })
         return
       }
-      const isValid = /^[\u4e00-\u9fa5A-Za-z0-9]+(,|，)\d{11}(，|,)[\u4e00-\u9fa5]+ [\u4e00-\u9fa5]+ [\u4e00-\u9fa5]+ [\u4e00-\u9fa5a-zA-Z0-9]+$/
-      for (const infoItem of this.infoList) {
-        if (infoItem.orderNo.trim() === '') {
-          this.$Message.info('请输入订单号')
-          return
-        }
-        if (infoItem.data.trim() === '') {
-          this.$Message.info('请输入收件信息')
-          return
-        }
-        if (!isValid.test(infoItem.data)) {
-          this.$Message.info('收件信息输入不完整')
-          return
-        }
-      }
-      const newArray = this.infoList.filter(item => {
+      //  const isValid = /^[\u4e00-\u9fa5A-Za-z0-9]+(,|，)\d{11}(，|,)[\u4e00-\u9fa5]+ [\u4e00-\u9fa5]+ [\u4e00-\u9fa5]+ [\u4e00-\u9fa5a-zA-Z0-9]+$/
+      // for (const infoItem of this.realAddressData) {
+      //   if (infoItem.orderNo.trim() === '') {
+      //     this.$Message.info('请输入订单号')
+      //     return
+      //   }
+      //   if (infoItem.data.trim() === '') {
+      //     this.$Message.info('请输入收件信息')
+      //     return
+      //   }
+      //   if (!isValid.test(infoItem.data)) {
+      //     this.$Message.info('收件信息输入不完整')
+      //     return
+      //   }
+      // }
+      const newArray = this.realAddressData.filter(item => {
         return item.isVerified
       })
 
-      if (newArray.length < 1 || this.infoList.length > newArray.length) {
-        this.$Message.info('请点击确定按钮')
+      if (
+        newArray.length < 1 ||
+        this.realAddressData.length > newArray.length
+      ) {
+        this.$Notice.info({
+          title: '温馨提示',
+          desc: '请处理掉验证未通过的数据 '
+        })
         return
       }
-      this.endSubmitData.data = JSON.stringify(this.infoList)
-      this.endSubmitData.gid = this.myGoods.id
+      let submitAddrList = []
+      for (let submitItem of this.realAddressData) {
+        submitAddrList.push({
+          orderNo: submitItem.orderNo,
+          data: submitItem.data,
+          note: '',
+          goods: [{ gid: this.myGoods.id, number: 1 }]
+        })
+      }
+      this.endSubmitData.data = JSON.stringify(submitAddrList)
+      //this.endSubmitData.gid = this.myGoods.id
 
       const content =
         '<p class="orderTips">现在下单，我们将在' +
@@ -411,17 +734,11 @@ export default {
             const resData = response.data
             if (resData.returnCode === statusCode.OK) {
               this.myGoods = {}
-              this.infoList = [
-                {
-                  orderNo: '',
-                  data: '',
-                  isVerified: false
-                }
-              ]
+              this.realAddressData = []
               this.totalPrice = 0.0
               this.formatTotalPrice(this.totalPrice)
               this.endSubmitData.data = []
-              this.endSubmitData.gid = 0
+              // this.endSubmitData.gid = 0
               this.endSubmitData.totalNote = ''
               this.$store.dispatch('GetUserInfo')
               setTimeout(() => {
@@ -466,12 +783,18 @@ export default {
       })
     },
     calculation(weight, address) {
-      const isFar = this.farVaild(address)
+      const logisticObjStore = this.$store.getters.express
+      const logisticStr = JSON.stringify(logisticObjStore)
+      const logisticObj = JSON.parse(logisticStr)
+      const isFar = this.farVaild(address, logisticObj.note)
+
       let wuLiuPrice = 0.0
-      if (weight <= this.wuLiu.firstWeight) {
-        wuLiuPrice = isFar ? this.wuLiu.farFirstPrice : this.wuLiu.firstPrice
-      } else if (weight <= this.wuLiu.middleWeight) {
-        wuLiuPrice = isFar ? this.wuLiu.farMidllePrice : this.wuLiu.middlePrice
+      if (weight <= logisticObj.firstWeight) {
+        wuLiuPrice = isFar ? logisticObj.farFirstPrice : logisticObj.firstPrice
+      } else if (weight <= logisticObj.middleWeight) {
+        wuLiuPrice = isFar
+          ? logisticObj.farMidllePrice
+          : logisticObj.middlePrice
       } else {
         const weightStr = weight + ''
         const splitWeight = weightStr.split('.')
@@ -480,17 +803,17 @@ export default {
         if (parseInt(zhengshu) > 1) {
           zhengshu -= 1
           wuLiuPrice += isFar
-            ? this.wuLiu.farMidllePrice
-            : this.wuLiu.middlePrice
+            ? logisticObj.farMidllePrice
+            : logisticObj.middlePrice
           wuLiuPrice +=
-            zhengshu * (isFar ? this.wuLiu.farEndPrice : this.wuLiu.endPrice)
+            zhengshu * (isFar ? logisticObj.farEndPrice : logisticObj.endPrice)
         } else {
           wuLiuPrice += isFar
-            ? this.wuLiu.farMidllePrice
-            : this.wuLiu.middlePrice
+            ? logisticObj.farMidllePrice
+            : logisticObj.middlePrice
         }
         if (parseInt(xiaoshu) > 0) {
-          wuLiuPrice += isFar ? this.wuLiu.farEndPrice : this.wuLiu.endPrice
+          wuLiuPrice += isFar ? logisticObj.farEndPrice : logisticObj.endPrice
         }
       }
       return wuLiuPrice
@@ -498,39 +821,188 @@ export default {
     formatTotalPrice(totalPrice) {
       this.showTotalPrice = numeral(totalPrice).format('0.00')
     },
-    farVaild(address) {
-      // let reg = /(，|,)[\u4e00-\u9fa5]+ /
-      // let province = reg.exec(address)
-      // console.log('我输入的地区：'  + province)
-      // let farAddressList = this.wuLiu.note.split(' ')
-      const isFar = false
-      // for (let str of farAddressList) {
-      //   if (province.includes(str)) {
-      //     isFar = true
-      //     break
-      //   }
-      // }
+    farVaild(address, note) {
+      const reg = /[\u4e00-\u9fa5]+ /
+      const province = reg.exec(address)[0]
+      const farAddressList = note.split(' ')
+      let isFar = false
+      for (const str of farAddressList) {
+        if (province.indexOf(str) !== -1) {
+          isFar = true
+          break
+        }
+      }
       return isFar
     },
     handleUpload(file) {
       this.file = file
-      Papa.parse(file, {
-        encoding: 'UTF-8',
-        complete: function(results, file) {
-          console.log('Parsing complete:', results, file)
-        }
-      })
-      // console.log(jsonArray)
-      // csv()
-      //   .fromFile(file)
-      //   .then(jsonArray => { console.log(jsonArray)}, errorHandle)
       return false
+    },
+    upload() {
+      this.loadingStatus = true
+      this.modelClosable = false
+      // const submitData = {
+      //   business: this.select,
+      //   file: this.file
+      // }
+      // console.log(JSON.stringify(this.file))
+      // uploadFroala(submitData).then(res => {
+      //   console.log(res)
+      // })
+      const formData = new FormData()
+      formData.append('business', this.select)
+      formData.append('file', this.file) // 'file' 可变 相当于 input 表单的name 属性
+      // 服务器只需按照正常的上传程序代码即可
+      this.$http
+        .post('http://182.61.16.69:8080/mall/rs/common/uploadFroala', formData)
+        .then(res => {
+          const resData = res.data
+          const isValidMethod = /^[\u4e00-\u9fa5A-Za-z0-9\s\S]+(,|，)\d{11}(，|,)[\u4e00-\u9fa5]+ [\u4e00-\u9fa5]+ [\u4e00-\u9fa5|null]+ [\s\S―]*$/
+          if (statusCode.OK === resData.returnCode) {
+            const resAddressList = resData.data
+            for (const addrItem of resAddressList) {
+              const errors = new Map()
+              let isValid = true
+              if (!addrItem.orderNo || addrItem.orderNo.trim() === '') {
+                errors.set('orderNo', '第三方订单编号不能为空')
+                isValid = false
+              }
+              if (!addrItem.orderNo || addrItem.data.trim() === '') {
+                errors.set('data', '收货信息不能为空')
+                isValid = false
+              }
+              if (!isValidMethod.test(addrItem.data)) {
+                errors.set('data', '收货信息格式不正确')
+                isValid = false
+              }
+              this.realAddressData.push({
+                errors: errors,
+                isVerified: isValid,
+                orderNo: addrItem.orderNo,
+                data: addrItem.data
+              })
+            }
+            // this.realAddressData = this.realAddressData.concat(resData.data)
+
+            this.totalPriceFunction()
+            this.sortRealAddressList()
+            this.loadingStatus = false
+            this.modelClosable = true
+            this.$Notice.success({
+              title: '温馨提示',
+              desc: '文件上传成功，解析结果已返回 '
+            })
+            this.fileUploadModel = false
+            this.file = null
+          } else {
+            this.$Message.info(resData.returnMessage)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    addressDataFilter(receiptObj) {
+      this.realAddressData.push({
+        orderNo: receiptObj.orderNo,
+        data: receiptObj.data,
+        isVerified: true,
+        errors: new Map()
+      })
+      this.totalPriceFunction()
+      this.sortRealAddressList()
+      // const notVerifiedArr = this.realAddressData.filter(
+      //   addData => !addData.isVerified
+      // )
+      // const verifiedArr = this.realAddressData.filter(
+      //   addData => addData.isVerified
+      // )
+    },
+    sortRealAddressList() {
+      const notVerifiedArr = this.realAddressData.filter(
+        addData => !addData.isVerified
+      )
+      const verifiedArr = this.realAddressData.filter(
+        addData => addData.isVerified
+      )
+      this.realAddressData = notVerifiedArr.concat(verifiedArr)
+      if (notVerifiedArr.length > 0) {
+        this.alertType = 'error'
+      } else {
+        this.alertType = 'success'
+      }
+      this.alertText =
+        '验证失败 ' +
+        notVerifiedArr.length +
+        '条，验证通过 ' +
+        verifiedArr.length +
+        '条，总计 ' +
+        this.realAddressData.length +
+        '。'
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+.metableDiv table {
+  border-collapse: collapse;
+  display: table;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 24px;
+}
+#newspaper-a {
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', Sans-Serif;
+  font-size: 12px;
+  text-align: left;
+  border-collapse: collapse;
+  border: 1px solid #e9e9e9;
+  border-radius: 4px;
+}
+#newspaper-a th {
+  padding: 12px 17px 12px 17px;
+  font-weight: normal;
+  font-size: 14px;
+  color: #666;
+  border-bottom: 1px solid #e9e9e9;
+}
+#newspaper-a td {
+  padding: 7px 17px 7px 17px;
+  color: #606266;
+  font-size: 14px;
+
+  border-bottom: 1px solid #e9e9e9;
+}
+#newspaper-a tbody tr:hover td {
+  // color: #666;
+  background: #f5f7fa;
+}
+
+.fileModelhead {
+  text-align: center;
+  padding: 15px;
+  .selectHead {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  .uploadCore {
+    display: flex;
+    .uploadCom {
+      width: 400px;
+    }
+  }
+  .footer {
+    padding: 5px;
+    .fileName {
+      padding: 15px;
+    }
+    span {
+      font-size: 18px;
+      border: 1px;
+    }
+  }
+}
 .checkNow {
   width: 100%;
   height: 100%;
@@ -758,30 +1230,31 @@ export default {
 }
 
 .uploadTable .topTabs {
-  border-bottom: 1px solid #d01126;
+  // border-bottom: 1px solid #d01126;
   display: -ms-flexbox;
   display: flex;
+  list-style-type: none;
 }
 
 .uploadTable .topTabs li {
-  width: 120px;
+  width: 200px;
   margin-right: 16px;
   box-sizing: border-box;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 21px;
   color: #666;
   padding: 5px 10px;
   border-radius: 4px 4px 0 0;
-  border: 1px solid #e9e9e9;
+  // border: 1px solid #e9e9e9;
   background: #f7f7f7;
   text-align: center;
-  cursor: pointer;
+  // cursor: pointer;
 }
 
 .uploadTable .topTabs .active {
   color: #d01126;
   border-color: #d01126;
-  border-bottom: #fff;
+  // border-bottom: #fff;
   background: #fff;
   bottom: 0;
   position: relative;
@@ -817,7 +1290,7 @@ export default {
 }
 
 .handleBase .handBox {
-  padding: 0 30px;
+  // padding: 0 30px;
   position: relative;
   -ms-flex: 1;
   flex: 1;
@@ -831,6 +1304,21 @@ export default {
   font-weight: 700;
   position: relative;
   margin-bottom: 20px;
+}
+.handBox .giftButtonDiv {
+  padding-bottom: 10px;
+}
+.handleBase .handBox .giftButtonDiv .giftButton {
+  cursor: pointer;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 28px;
+  margin: 0 10px;
+  padding: 0 20px;
+  border: 1px solid #d01126;
+  border-radius: 4px;
+  color: #fff;
+  background: #d01126;
 }
 
 .handleBase .handBox h4:before {
@@ -869,7 +1357,7 @@ export default {
 }
 
 .handleBase .tips li {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 18px;
   color: #999;
   position: relative;
@@ -890,6 +1378,7 @@ export default {
 }
 
 .handleBase .packageList {
+  clear: both;
   // margin-top: 40px;
 }
 
@@ -961,6 +1450,7 @@ export default {
   display: flex;
   border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .handleBase .packageList .checkArea .left {
@@ -1123,6 +1613,15 @@ export default {
 .tableShopCar .goods {
   margin-bottom: 20px;
   padding: 0 15px;
+}
+.tableShopCar .noData {
+  text-align: center;
+  img {
+    width: 60px;
+    height: 40px;
+  }
+  p {
+  }
 }
 .tableShopCar .goods .item {
   display: -ms-flexbox;
@@ -1324,5 +1823,8 @@ export default {
   margin-right: 0px;
   // width: 80px;
   // padding: 0 26px;
+}
+.updateFrom {
+  margin-top: 20px;
 }
 </style>

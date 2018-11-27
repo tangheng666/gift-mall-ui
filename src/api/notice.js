@@ -12,3 +12,9 @@ export function topNotice() {
     url: 'topNotice'
   })
 }
+
+export function oneNotice() {
+  return request({
+    url: 'oneNotice'
+  })
+}

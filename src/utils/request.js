@@ -11,7 +11,7 @@ import qs from 'qs'
 const service = axios.create({
   baseURL: process.env.BASE_API, // api 的 base_url
   method: 'post',
-  timeout: 5000 // request timeout
+  timeout: 1000 * 60 // request timeout
 })
 
 service.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -19,7 +19,10 @@ service.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencod
 // request interceptor
 service.interceptors.request.use(
   config => {
-    // Do something before request is sent
+    if (config.url.indexOf('/uploadFroala') !== -1) {
+      // console.log('可以哦')
+      config.baseURL = config.baseURL.replace('/user', '')
+    }
     config.transformRequest = function(data) {
       if (typeof (data) !== 'undefined') {
         if (Object.keys(data).length > 0 && data.hasOwnProperty('page') && !isNaN(data.page)) {

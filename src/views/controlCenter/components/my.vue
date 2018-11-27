@@ -11,7 +11,8 @@
           <i>3.5</i> 元/单 </strong></div>
           <div class="vipUser levelBox"><span>升级成为</span> <img src="http://106.14.154.124:8099/images/userCenter/VIP.png" alt="" class="vipImg"> <span>VIP用户</span> <strong>
             <!----><i>3.2</i> 元/单 </strong></div>
-          <b class="regLink"> 复制链接邀请注册 </b>
+          <input v-model="regLink" type="hidden">
+          <b class="regLink" @click="copyLink"> 复制链接邀请注册 </b>
           <div class="regedBox"><strong><i>0</i>/3 </strong> <em><b class="b0" /></em> <span> 还差3人 </span> <b class="invitorInfo">·
           点击查看详情 ·</b>
           </div>
@@ -64,21 +65,23 @@
       </ul>
     </div>
     <div class="orderList">
-      <div class="noCont">
-        <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="">
-        <p>暂无数据</p>
-      </div>
+      <master-order-list />
+
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import masterOrderList from './masterOrderList'
+import { getHost } from '@/utils'
 export default {
   name: 'My',
-  components: {},
+  components: { masterOrderList },
   data() {
-    return {}
+    return {
+      regLink: getHost() + 'register?usrid=' + this.$store.getters.id
+    }
   },
   computed: {
     ...mapGetters(['name', 'wealth', 'express'])
@@ -92,6 +95,18 @@ export default {
     },
     nextHide() {
       this.$refs.daImg.style.display = 'none'
+    },
+    copyLink() {
+      this.$Message.destroy()
+      const self = this
+      this.$copyText(this.regLink).then(
+        function(e) {
+          self.$Message.success('复制成功')
+        },
+        function(e) {
+          self.$Message.error('复制失败')
+        }
+      )
     }
   }
 }
@@ -100,5 +115,8 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .userCenter {
   padding-left: 20px;
+  .orderList {
+    margin-top: 20px;
+  }
 }
 </style>

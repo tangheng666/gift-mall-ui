@@ -22,7 +22,7 @@
     </li>
     <li :class="key==='/control/check'?'active':''" class="tabs" @click="pageShow('/control/check')">
       <svg-icon icon-class="chaxun1" class="icon" />
-      <span>查件/补发</span>
+      <span>补发情况</span>
       <div class="list" style="display: none;" />
     </li>
   </ul>

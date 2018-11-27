@@ -3,7 +3,7 @@
     <div class="newLogBase">
       <div class="contBox">
         <div class="leftBox">
-          <h2>欢迎来到求新品</h2>
+          <h2>欢迎注册幸运包</h2>
           <h3>我们提供赠品采购、发货、一站式服务。</h3>
           <div class="line"><span /><span class="active" /></div>
           <div class="box">
@@ -48,7 +48,8 @@ export default {
         code: '666666',
         password: '',
         qq: '',
-        wechat: ''
+        wechat: '',
+        usrid: this.$route.query.usrid
       },
       redirect: ''
     }

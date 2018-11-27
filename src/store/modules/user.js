@@ -3,7 +3,8 @@ import {
   loginByUsername,
   logout,
   registerByUsername,
-  updateInfo
+  updateInfo,
+  updatePassword
 } from '@/api/user'
 import {
   getToken,
@@ -75,7 +76,6 @@ const user = {
             const resData = data.data
             if (resData.usrRole === 'MEMBER') {
               commit('SET_TOKEN', resData.token)
-              commit('SET_USRID', resData.usrid)
               commit('SET_ROLE', resData.usrRole)
               setToken(resData.token)
             }
@@ -96,7 +96,6 @@ const user = {
             resolve(data)
           } else {
             commit('SET_TOKEN', data.data.token)
-            commit('SET_USRID', data.data.usrid)
             commit('SET_ROLE', data.data.usrRole)
             setToken(data.data.token)
             resolve(data)
@@ -139,6 +138,18 @@ const user = {
             commit('SET_QQ', updateData.qq)
             resolve(data)
           }
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    updatePwd({
+      commit
+    }, updateData) {
+      return new Promise((resolve, reject) => {
+        updatePassword(updateData).then((res) => {
+          const data = res.data
+          resolve(data)
         }).catch(error => {
           reject(error)
         })

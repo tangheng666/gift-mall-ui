@@ -3,39 +3,33 @@
     <left-router />
     <div class="right">
       <div class="orderLogisticList">
-        <div class="title">
-          <ul class="navTitle">
-            <li class="nav active">物流查询记录</li>
-            <!-- <li class="nav">已补发订单</li> -->
-            <li class="lastRight"><b class="button-n">申请查件</b></li>
-          </ul>
-        </div>
-        <ul class="tabs">
-          <li class=""><span>待处理</span> <strong>0</strong></li>
-          <li class=""><span>处理中</span> <strong>0</strong></li>
-          <li class=""><span>已处理</span> <strong>0</strong></li>
-          <li class="active"><span>全部记录</span></li>
-        </ul>
-        <div class="search">
-          <div class="inp">
-            <!---->
-            <input type="text" autocomplete="off" placeholder="请输入快递单号" class="el-input__inner">
+        <div class="topSearchBox">
+          <div class="topHead">
+            <h2>补发查询</h2>
+            <!-- <b class="button-n">申请查件</b> -->
           </div>
-          <b class="button-w">查询</b>
+
         </div>
-        <div class="noCont"><img src="http://106.14.154.124:8099/images/noContainer.svg" alt="aaa">
+        <div class="filter">
+          <Select v-model="searchForm.status" placeholder="请选择补发状态" clearable style="width: 150px">
+            <Option v-for="stateItem in stateAll" :value="stateItem.key" :key="stateItem.key">{{ stateItem.value }}</Option>
+          </Select>&nbsp;&nbsp;
+          <DatePicker v-model="startTimeNoF" type="datetime" format="yyyy-MM-dd mm:hh:ss" clearable placeholder="选择开始时间" style="width: 200px" @on-change="startTimeChange" />
+          <span>&nbsp;&nbsp;至&nbsp;&nbsp;</span>
+          <DatePicker v-model="endTimeNoF" type="datetime" format="yyyy-MM-dd mm:hh:ss" clearable placeholder="选择结束时间" style="width: 200px" @on-change="endTimeChange" />
+
+          <b class="button-w" @click="getReissueOrderList">查询</b>
+        </div>
+
+        <div v-if="showOrderList.length> 0" class="orderListBase">
+          <Table :data="showOrderList" :columns="tableColumns" :border="false" size="large" stripe />
+        </div>
+        <div v-if="showOrderList.length === 0" class="noCont">
+          <img src="/static/notData.png" alt="暂无数据">
           <p>暂无数据</p>
         </div>
-        <div class="step1" />
         <div class="pager">
-          <Page :current="currentPage" :page-sizes="[5, 10, 15, 20]" :page-size="5" :total="0" layout="total, sizes, prev, pager, next, jumper" @page-size-change="handleSizeChange" @change="handleCurrentChange" />
-        </div>
-        <div class="el-dialog__wrapper" style="display: none;">
-          <div class="el-dialog alertGroup" style="margin-top: 10vh; width: 440px;">
-            <div class="el-dialog__header"><span class="el-dialog__title">查件申请</span>
-              <button type="button" aria-label="Close" class="el-dialog__headerbtn"><i class="el-dialog__close el-icon el-icon-close" /></button>
-            </div>
-          </div>
+          <Page v-if="showOrderList.length> 0" :current="searchForm.page" :page-size-opts="[5, 10, 20, 40]" :page-size="searchForm.limit" :total="total" show-total show-sizer @on-page-size-change="changePageSize" @on-change="changePage" />
         </div>
       </div>
     </div>
@@ -44,7 +38,8 @@
 
 <script>
 import { leftRouter } from './components'
-
+import { findReplacement } from '@/api/reissueOrder'
+import statusCode from '@/common/statusCode'
 export default {
   name: 'Check',
   components: {
@@ -52,16 +47,110 @@ export default {
   },
   data() {
     return {
-      currentPage: 4
+      stateAll: [
+        { key: 'REVIEW', value: '待处理' },
+        { key: 'REJECT', value: '已批准' },
+        { key: 'PASS', value: '已拒绝' }
+      ],
+      showOrderList: [],
+      tableColumns: [
+        {
+          title: '补发编号',
+          key: 'id',
+          align: 'center',
+          width: 120
+        },
+        {
+          title: '详细订单编号',
+          key: 'sid',
+          align: 'center',
+          width: 120
+        },
+        {
+          title: '原快递编号',
+          key: 'oldExpressNo',
+          align: 'center',
+          width: 100
+        },
+        {
+          title: '新快递编号',
+          key: 'newExpressNo',
+          align: 'center',
+          width: 100
+        },
+        {
+          title: '补发状态',
+          key: 'status',
+          align: 'center',
+          render: (h, params) => {
+            const row = params.row
+
+            const text =
+              row.status === 'REVIEW'
+                ? '待处理'
+                : row.status === 'REJECT'
+                  ? '已批准'
+                  : '已拒绝'
+
+            return h(
+              'span',
+              {
+                attrs: {
+                  style: 'font-size: 16px;font-weight: 400'
+                }
+              },
+              text
+            )
+          }
+        },
+        {
+          title: '创建时间',
+          align: 'center',
+          key: 'dateCreated'
+        }
+      ],
+      searchForm: {
+        page: 1,
+        limit: 5,
+        status: '',
+        startTime: '',
+        endTime: ''
+      },
+      total: 0,
+      startTimeNoF: null,
+      endTimeNoF: null
     }
   },
-  computed: {},
+  created() {
+    this.getReissueOrderList()
+  },
   methods: {
-    handleSizeChange(val) {
-      console.log('显示多少：' + val)
+    getReissueOrderList() {
+      this.$Message.destroy()
+      findReplacement(this.searchForm).then(response => {
+        const resData = response.data
+        if (statusCode.OK === resData.returnCode) {
+          this.showOrderList = resData.data
+          this.total = resData.total
+        } else {
+          this.$Message.info(resData.returnMessage)
+          this.noData = true
+        }
+      })
     },
-    handleCurrentChange(val) {
-      console.log('当前多少：' + val)
+    changePage(v) {
+      this.searchForm.page = v
+      this.getReissueOrderList()
+    },
+    changePageSize(v) {
+      this.searchForm.limit = v
+      this.getReissueOrderList()
+    },
+    startTimeChange(v) {
+      this.searchForm.startTime = v
+    },
+    endTimeChange(v) {
+      this.searchForm.endTime = v
     }
   }
 }
@@ -77,6 +166,26 @@ export default {
 .orderLogisticList {
   padding-left: 20px;
 }
+.orderLogisticList .topSearchBox {
+  background: #fcfcfc;
+  padding: 10px 10px 0 20px;
+  border-bottom: 1px solid #e9e9e9;
+}
+.orderLogisticList .topSearchBox .topHead {
+  text-align: center;
+}
+.filter {
+  text-align: center;
+  margin-top: 24px;
+}
+.orderLogisticList .topSearchBox .topHead h2 {
+  font-size: 22px;
+  line-height: 30px;
+  color: #333;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 .orderLogisticList .tabs {
   display: -ms-flexbox;
   display: flex;

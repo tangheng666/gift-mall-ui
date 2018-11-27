@@ -7,9 +7,9 @@ Vue.use(Router)
 export const constantRouterMap = [{
   path: '/',
   component: layout,
-  redirect: 'index',
+  redirect: '/index',
   children: [{
-    path: 'index',
+    path: '/index',
     component: () => import('@/views/index'),
     name: 'index',
     meta: {
@@ -103,12 +103,31 @@ export const constantRouterMap = [{
       title: '资金明细',
       noCache: true
     }
+  },
+  {
+    path: 'recharge',
+    component: () => import('@/views/controlCenter/recharge'),
+    name: 'control/recharge',
+    meta: {
+      title: '充值',
+      noCache: true
+    }
+  },
+  {
+    path: 'sampleApply',
+    component: () => import('@/views/controlCenter/sampleApply'),
+    name: 'control/sampleApply',
+    meta: {
+      title: '申请样品',
+      noCache: true
+    }
   }
   ]
 }
 ]
 
 export default new Router({
+  mode: 'history',
   // mode: 'history', // require service support
   scrollBehavior: () => ({
     y: 0

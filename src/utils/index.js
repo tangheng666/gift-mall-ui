@@ -1,6 +1,10 @@
 /**
  * Created by jiachenpan on 16/11/18.
  */
+export function getHost() {
+  return 'http://localhost:8966/'
+}
+
 export function projectName() {
   return '礼品商城'
 }

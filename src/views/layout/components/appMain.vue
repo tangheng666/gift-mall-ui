@@ -1,7 +1,7 @@
 <template>
   <div class="contWrap">
     <div class="backStage">
-      <adrift-notice />
+      <adrift-notice v-show="isShowNotice" />
       <transition name="fade-transform" mode="out-in">
         <!-- <keep-alive> -->
         <router-view :key="key" />
@@ -22,6 +22,13 @@ export default {
   computed: {
     key() {
       return this.$route.fullPath
+    },
+    isShowNotice() {
+      if (this.$route.fullPath !== '/index') {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }

@@ -63,7 +63,7 @@
                 </li>
               </ul>
               <div v-else class="noCont">
-                <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="noCont" class="noCont">
+                <img src="/static/emptyCar.png" alt="noCont" class="noCont">
               </div>
               <!---->
               <div class="countMoneyBox mt120">
@@ -72,8 +72,8 @@
                 <p class="total"><span>总计：</span> <strong>￥{{ totalMoney }}</strong></p>
               </div>
               <div class="operateBtn">
-                <p> <strong @click="goBuy">立即采购</strong></p>
-                <!--  <span>样品申请</span>   <div class="setCommon">设为常用礼品包</div> -->
+                <p> <span @click="goSamplyApply">样品申请</span> <strong @click="goBuy">立即采购</strong></p>
+                <!-- <div class="setCommon">设为常用礼品包</div> -->
               </div>
             </div>
           </div>
@@ -138,6 +138,17 @@ export default {
     goBuy() {
       this.$router.push('/control/buy')
     },
+    goSamplyApply() {
+      this.$Message.destroy()
+      if (this.myCarList.length === 0) {
+        this.$Message.info('请先选择礼品')
+        return
+      }
+      this.$router.push({
+        name: 'control/sampleApply',
+        params: { goodsId: this.myCarList[0].id, totalPrice: this.totalMoney }
+      })
+    },
     handleSizeChange(val) {
       this.listQuery.limit = val
       this.getList()
@@ -147,6 +158,11 @@ export default {
       this.getList()
     },
     addCar(item) {
+      if (this.myCarMap.size > 0) {
+        this.$Message.destroy()
+        this.$Message.info('抱歉，目前仅支持一个礼品加入采购车')
+        return
+      }
       this.myCarList = []
       const itemId = item.id
       const count = 1
@@ -268,11 +284,14 @@ export default {
       return wuLiuPrice
     },
     updateSignleItemCount(obj, flag) {
-      if (flag) {
-        this.addCar(obj)
-      } else {
-        this.removeCar(obj, false)
-      }
+      this.$Message.destroy()
+      this.$Message.info('抱歉，目前仅支持一件礼品加入采购车')
+      // return
+      // if (flag) {
+      //   this.addCar(obj)
+      // } else {
+      //   this.removeCar(obj, false)
+      // }
     },
     delSignleItem(obj) {
       this.removeCar(obj, true)

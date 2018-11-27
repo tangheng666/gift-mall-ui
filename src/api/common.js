@@ -5,3 +5,13 @@ export function expressFee() {
     url: '/expressFee'
   })
 }
+
+export function uploadFroala(param) {
+  return request({
+    url: '/common/uploadFroala',
+    data: param,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

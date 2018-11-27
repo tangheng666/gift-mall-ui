@@ -3,61 +3,25 @@
     <left-router />
     <div class="right">
       <div class="orderManger">
-
         <div class="topSearchBox">
           <h1>订单查询</h1>
           <div class="searchBox">
-            <!--  -->
-
             <i-input v-model="searchForm.search" class="searchInput">
-              <Select slot="prepend" v-model="searchForm.searchKey" style="width:120px">
+              <Select slot="prepend" v-model="searchForm.searchKey" style="width:120px" placeholder="请选择查询类型">
                 <Option v-for="item in selectAll" :value="item.key" :key="item.key">{{ item.value }}</Option>
               </Select>
             </i-input>
-            <b class="button-n">查询</b>
+            <b class="button-n" @click="querySlaveOrder">查询</b>
           </div>
           <ul class="tabNav">
-            <li :class="tabSelect?'active':''" @click="change('gift')">采购订单管理</li>
-            <li :class="!tabSelect?'active':''" @click="change('detail')">详细订单管理</li>
+            <li :class="tabType === 'master'?'active':''" @click="change('master')">采购订单管理</li>
+            <li :class="tabType === 'detail'?'active':''" @click="change('detail')">详细订单管理</li>
           </ul>
         </div>
 
         <div class="tabContentBox">
+          <component ref="smallRef" :is="currentViewF" :search="searchForm.search" :search-key="searchForm.searchKey" :oid="searchForm.oid" @oidToDeatil="toDetail"/>
 
-          <div v-if="tabSelect" class="tables">
-            <div v-if="tableData.length >0" class="orderListBase">
-
-              <Table :data="tableData" :columns="tableColumns" />
-              <div style="margin: 10px;overflow: hidden">
-                <div style="float: right;">
-                  <Page :total="total" :current="searchForm.page" :page-size="searchForm.limit" show-total show-sizer @on-change="changePage" @on-page-size-change="changePageSize" />
-                </div>
-              </div>
-            </div>
-            <div v-else class="noCont">
-              <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="">
-              <p>暂无数据</p>
-            </div>
-          </div>
-
-          <div v-else class="orderMangerDetail">
-            <div class="orderDetail">
-              <ul class="navTables">
-                <!-- <li class="active">近3日订单</li> -->
-                <li class="">处理中</li>
-                <li class="">仓库已发货</li>
-                <li class="">待退款</li>
-                <li class="">已退款</li>
-                <li class="" style="display: none;">补发订单</li>
-                <li class="active">所有订单</li>
-              </ul>
-              <div class="links" />
-              <div class="noCont">
-                <img src="http://106.14.154.124:8099/images/noContainer.svg" alt="">
-                <p>暂无数据</p>
-              </div>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -67,21 +31,18 @@
 </template>
 
 <script>
-import { leftRouter } from './components'
-import { fetchOrder, payOrder, cancelOrder } from '@/api/order'
-import statusCode from '@/common/statusCode'
+import { leftRouter, masterOrderList, slaveOrderList } from './components'
 export default {
   name: 'Order',
   components: {
-    leftRouter
+    leftRouter,
+    masterOrderList,
+    slaveOrderList
   },
   data() {
     return {
+      currentView: 'masterOrderList',
       selectAll: [
-        {
-          key: 'empty',
-          value: '请选择查询类型'
-        },
         {
           key: 'expressNo',
           value: '快递单号'
@@ -97,251 +58,51 @@ export default {
         }
       ],
       searchForm: {
-        page: 1,
-        limit: 10,
+        oid: this.$route.params.oid,
         search: '',
-        searchKey: 'empty',
-        state: ''
+        searchKey: ''
       },
-      tabSelect: true,
-      tableData: [],
-      total: 0,
-      tableColumns: [
-        {
-          title: '礼品单价(元)',
-          key: 'price',
-          align: 'center'
-          // width: 110
-        },
-        {
-          title: '单个重量(kg)',
-          key: 'weight',
-          align: 'center'
-          // width: 110
-        },
-        {
-          title: '礼品总数量',
-          key: 'totalCount',
-          align: 'center'
-          // width: 100
-        },
-        {
-          title: '订单总金额',
-          key: 'totalPrice',
-          align: 'center'
-          // width: 100
-        },
-        {
-          title: '订单状态',
-          key: 'state',
-          align: 'center',
-          // width: 120,
-          render: (h, params) => {
-            const row = params.row
-            const color =
-              row.state === 'CREATED'
-                ? '#20a0ea'
-                : row.state === 'PAYED'
-                  ? '#19BE6B'
-                  : '#ed2842'
-            const text =
-              row.state === 'CREATED'
-                ? '待支付'
-                : row.state === 'PAYED'
-                  ? '已支付'
-                  : '已取消'
-
-            return h(
-              'span',
-              {
-                attrs: {
-                  style: 'color:' + color
-                }
-              },
-              text
-            )
-          }
-        },
-        {
-          title: '备注',
-          align: 'center',
-          key: 'totalNote',
-          // width: 150,
-          render(h, param) {
-            let totalNote = param.row.totalNote
-            if (totalNote.length > 10) {
-              totalNote = totalNote.substring(0, 10) + '......'
-            }
-            return h(
-              'Tooltip',
-              {
-                props: {
-                  placement: 'top',
-                  content: param.row.totalNote,
-                  maxWidth: 800
-                }
-              },
-              totalNote
-            )
-            // <Tooltip content="Top Center text" placement="">
-          }
-        },
-        {
-          title: '创建时间',
-          align: 'center',
-          // width: 150,
-          key: 'dateCreated'
-        },
-        {
-          title: '操作',
-          key: 'action',
-          // width: 240,
-          align: 'center',
-          render: (h, params) => {
-            const row = params.row
-            if (row.state === 'CREATED') {
-              return h('div', [
-                h(
-                  'Button',
-                  {
-                    props: {
-                      type: 'info',
-                      size: 'small'
-                    },
-                    style: {
-                      marginRight: '5px'
-                    },
-                    on: {
-                      click: () => {
-                        this.payOrder(params.row.id)
-                      }
-                    }
-                  },
-                  '支付'
-                ),
-                h(
-                  'Button',
-                  {
-                    props: {
-                      type: 'error',
-                      size: 'small'
-                    },
-                    style: {
-                      marginRight: '5px'
-                    },
-                    on: {
-                      click: () => {
-                        this.cancelOrder(params.row.id)
-                      }
-                    }
-                  },
-                  '撤销'
-                )
-              ])
-            } else {
-              return h('div', [
-                h(
-                  'Button',
-                  {
-                    props: {
-                      type: 'info',
-                      size: 'small'
-                    },
-                    style: {
-                      marginRight: '5px'
-                    },
-                    on: {
-                      click: () => {
-                        // this.preview(params.row)
-                      }
-                    }
-                  },
-                  '预览'
-                ),
-                h(
-                  'Button',
-                  {
-                    props: {
-                      type: 'primary',
-                      size: 'small'
-                    },
-                    style: {
-                      marginRight: '5px'
-                    },
-                    on: {
-                      click: () => {
-                        //      this.edit(params.row)
-                      }
-                    }
-                  },
-                  '编辑'
-                )
-              ])
-            }
-          }
-        }
-      ]
+      tabType: 'master'
     }
   },
-  created() {
-    this.getOrderList()
+  computed: {
+    currentViewF() {
+      if (this.searchForm.oid) {
+        this.toDetail(this.searchForm.oid + '')
+      }
+      return this.currentView
+    }
   },
   methods: {
-    getOrderList() {
-      fetchOrder({
-        page: this.searchForm.page,
-        limit: this.searchForm.limit
-      }).then(response => {
-        const resData = response.data
-        if (statusCode.OK === resData.returnCode) {
-          this.tableData = resData.data
-          this.total = resData.total
-        } else {
-          this.$Message.info(resData.returnMessage)
-        }
-      })
-    },
-    changePage(v) {
-      this.searchForm.page = v
-      this.getOrderList()
-    },
-    changePageSize(v) {
-      this.searchForm.limit = v
-      this.getOrderList()
-    },
-    change(type) {
-      if (type === 'gift') {
-        this.tabSelect = true
+    querySlaveOrder() {
+      if (this.tabType === 'detail') {
+        this.$refs.smallRef.search = this.searchForm.search
+        this.$refs.smallRef.searchKey = this.searchForm.searchKey
+        this.$refs.smallRef.searchSlaveOrder()
       } else {
-        this.tabSelect = false
+        this.tabType = 'detail'
+        this.currentView = 'slaveOrderList'
       }
     },
-    payOrder(oid) {
-      this.$Modal.confirm({
-        title: '提示',
-        content: '<p>确定支付该笔订单吗？</p>',
-        onOk: () => {
-          payOrder({ oid: oid }).then(response => {
-            const resData = response.data
-            if (resData.returnCode === statusCode.OK) {
-              this.$store.dispatch('GetUserInfo')
-              this.getOrderList()
-            } else {
-              this.$Message.info(resData.returnMessage)
-            }
-          })
-        }
-      })
+    toDetail(oid) {
+      this.searchForm.oid = oid
+      if (this.tabType === 'detail') {
+        this.$refs.smallRef.oid = this.searchForm.oid
+      } else {
+        this.tabType = 'detail'
+      }
+      this.currentView = 'slaveOrderList'
     },
-    cancelOrder(oid) {
-      cancelOrder({ oid: oid }).then(response => {
-        const resData = response.data
-        if (resData.returnCode === statusCode.OK) {
-          this.getOrderList()
-        } else {
-          this.$Message.info(resData.returnMessage)
-        }
-      })
+    change(type) {
+      this.searchForm.oid = ''
+      this.searchForm.searchKey = ''
+      this.searchForm.search = ''
+      if (type === 'master') {
+        this.currentView = 'masterOrderList'
+      } else {
+        this.currentView = 'slaveOrderList'
+      }
+      this.tabType = type
     }
   }
 }
@@ -555,181 +316,6 @@ export default {
   text-decoration: none;
 }
 
-.orderDetail {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  position: relative;
-}
-.orderDetail .navTables {
-  border: 1px solid #ddd;
-  position: absolute;
-  border-radius: 4px;
-  top: 0;
-  left: 0;
-  display: -ms-flexbox;
-  display: flex;
-  height: 28px;
-}
-.orderDetail .navTables li {
-  text-align: center;
-  padding: 0 20px;
-  font-size: 12px;
-  line-height: 28px;
-  color: #444;
-  border: 1px solid transparent;
-  border-right-color: #ddd;
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.orderDetail .navTables .active,
-.orderDetail .navTables li:hover {
-  background: RGBA(255, 4, 55, 0.1);
-  border: 1px solid #d01126;
-  color: #d01126;
-}
-.orderDetail .links {
-  position: absolute;
-  right: 20px;
-  top: 0;
-  height: 42px;
-  line-height: 42px;
-  cursor: pointer;
-  font-size: 16px;
-  color: #2c7dff;
-}
-.orderDetail .cont {
-  -ms-flex: 1;
-  flex: 1;
-  margin-top: 62px;
-}
-.orderDetail .cont .tables {
-  border: 1px solid #e2e2e2;
-  margin-bottom: 12px;
-}
-.orderDetail .cont .tables .title {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  padding: 0 20px;
-  font-size: 14px;
-  line-height: 48px;
-  color: #444;
-  background: #f4f4f5;
-}
-.orderDetail .cont .tables .title .status {
-  color: #fe7605;
-}
-.orderDetail .cont .tables .goodsInfo {
-  display: -ms-flexbox;
-  display: flex;
-}
-.orderDetail .cont .tables .goodsInfo li {
-  border-right: 1px solid #e2e2e2;
-  box-sizing: border-box;
-}
-.orderDetail .cont .tables .goodsInfo li:last-child {
-  border: none;
-}
-.orderDetail .cont .tables .goodsInfo .detail {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-pack: center;
-  justify-content: center;
-  min-width: 380px;
-}
-.orderDetail .cont .tables .goodsInfo .detail > div {
-  display: -ms-flexbox;
-  display: flex;
-  padding: 20px;
-  border-bottom: 1px solid #e2e2e2;
-}
-.orderDetail .cont .tables .goodsInfo .detail > div:last-child {
-  border: none;
-}
-.orderDetail .cont .tables .goodsInfo .detail > div .goodsImg {
-  width: 80px;
-  height: 80px;
-  margin-right: 15px;
-  -ms-flex-item-align: center;
-  align-self: center;
-}
-.orderDetail .cont .tables .goodsInfo .detail > div .info {
-  -ms-flex: 1;
-  flex: 1;
-}
-.orderDetail .cont .tables .goodsInfo .detail > div .info h6 {
-  font-size: 14px;
-  line-height: 26px;
-  color: #444;
-  margin-bottom: 14px;
-}
-.orderDetail .cont .tables .goodsInfo .detail > div .info p {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  font-size: 14px;
-  line-height: 26px;
-  color: #444;
-}
-.orderDetail .cont .tables .goodsInfo .address {
-  padding: 20px;
-  width: 300px;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-pack: center;
-  justify-content: center;
-}
-.orderDetail .cont .tables .goodsInfo .address span,
-.orderDetail .cont .tables .goodsInfo .address strong {
-  font-size: 14px;
-  line-height: 26px;
-  color: #444;
-}
-.orderDetail .cont .tables .goodsInfo .address strong {
-  margin-left: 10px;
-}
-.orderDetail .cont .tables .goodsInfo .price {
-  padding: 20px;
-  text-align: center;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-pack: center;
-  justify-content: center;
-}
-.orderDetail .cont .tables .goodsInfo .price strong {
-  font-size: 20px;
-  line-height: 28px;
-  color: #d01126;
-}
-.orderDetail .cont .tables .goodsInfo .operate {
-  padding: 20px;
-  -ms-flex: 1;
-  flex: 1;
-  text-align: center;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-pack: center;
-  justify-content: center;
-}
-.orderDetail .cont .tables .goodsInfo .operate div {
-  line-height: 30px;
-}
-.orderDetail .cont .tables .goodsInfo .operate p {
-  margin-top: 20px;
-}
 .orderManger {
   padding-left: 20px;
 }

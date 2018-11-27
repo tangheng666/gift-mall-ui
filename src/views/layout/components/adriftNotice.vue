@@ -20,8 +20,10 @@
 <script>
 import { topNotice } from '@/api/notice'
 import statusCode from '@/common/statusCode'
+import { getToken } from '@/utils/auth'
 export default {
   name: 'AdriftNotice',
+
   components: {},
   data() {
     return {
@@ -34,16 +36,18 @@ export default {
   },
   methods: {
     getTopNotice() {
-      topNotice().then(response => {
-        const resData = response.data
-        if (
-          statusCode.OK === resData.returnCode &&
-          typeof resData.data !== 'undefined'
-        ) {
-          this.isOpen = true
-          this.noticeObj = resData.data
-        }
-      })
+      if (getToken()) {
+        topNotice().then(response => {
+          const resData = response.data
+          if (
+            statusCode.OK === resData.returnCode &&
+            typeof resData.data !== 'undefined'
+          ) {
+            this.isOpen = true
+            this.noticeObj = resData.data
+          }
+        })
+      }
     }
   }
 }
